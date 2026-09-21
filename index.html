@@ -1550,9 +1550,9 @@
     setTimeout(()=>{ modal.classList.remove('show'); modalOpen=false; modalClosing=false; if(then) then(); },300);
   }
   document.addEventListener('keydown', e=>{ if(e.key==='Escape' && modalOpen) closeModal(); });
-  // doDownload must run synchronously inside the click handler — navigator.share()
-  // requires a live user-activation, which a setTimeout-deferred call (closeModal's
-  // old pattern) loses, silently falling back to the broken plain-anchor download.
+  // doDownload runs synchronously inside the click handler, right on the tap —
+  // a setTimeout-deferred call (closeModal's old pattern) breaks the "real tap"
+  // gesture some mobile browsers require before they'll honor a download.
   $('promise').addEventListener('click', ()=>{ doDownload(); closeModal(); });
   $('notnow').addEventListener('click', ()=>closeModal());
   veil.addEventListener('click', ()=>closeModal());
@@ -1576,22 +1576,17 @@
     deliverPdf(blob);
   }
 
-  // iOS Safari drops the filename/extension on plain <a download> blob links (shows
-  // up as a random-UUID "?" file), and some mobile browsers ignore the download
-  // attribute entirely and just navigate the current tab to the blob URL, which
-  // shows nothing useful. navigator.share (native share sheet, "Save to Files")
-  // is tried first since it keeps the real name + type. If share isn't available
-  // here, open the PDF in a new tab so the browser's own viewer displays it —
-  // from there the person can use its Save/Share control.
-  async function deliverPdf(blob){
-    const file=new File([blob],'farak.pdf',{type:'application/pdf'});
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      try{ await navigator.share({files:[file]}); return; }
-      catch(e){ return; }           // person cancelled the share sheet — respect that, don't also pop a new tab
-    }
+  // Plain anchor download. Earlier this produced a random-UUID "?" file with no
+  // extension on iOS — that was because the call used to fire 300ms late (inside
+  // closeModal's setTimeout), which breaks the "real tap" gesture iOS checks for.
+  // Now that doDownload() runs synchronously on the tap, this works normally.
+  function deliverPdf(blob){
     const url=URL.createObjectURL(blob);
-    window.open(url,'_blank');
-    setTimeout(()=>URL.revokeObjectURL(url),60000);
+    const a=document.createElement('a');
+    a.download='farak.pdf'; a.href=url; a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },60000);
   }
 
   // canvas -> raw JPEG bytes, so it can be embedded straight into the PDF (no external libs)
