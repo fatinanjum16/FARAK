@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<!--
+  FARAK — Scanimation Art Generator
+  Copyright (c) 2026 FARAK. All rights reserved.
+
+  The source code, design, name and logo of this page are proprietary. Copying, reproducing, modifying,
+  re-hosting or redistributing any part of it without prior written permission is not allowed. See LICENSE.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<title>FARAK | Scanimation Art Generator from Photos or Videos</title>
+<meta name="description" content="Turn any photos or videos into scanimation art. FARAK builds the striped image and matching overlay in your browser — your files never leave your device.">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="author" content="FARAK">
+<meta name="copyright" content="© 2026 FARAK. All rights reserved.">
+<meta name="theme-color" content="#101018">
+<link rel="canonical" href="https://fatinanjum16.github.io/FARAK/">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="FARAK">
+<meta property="og:title" content="FARAK | Scanimation Art Generator">
+<meta property="og:description" content="Turn any photos or videos into scanimation art. FARAK builds the striped image and matching overlay in your browser — your files never leave your device.">
+<meta property="og:url" content="https://fatinanjum16.github.io/FARAK/">
+<meta property="og:image" content="https://fatinanjum16.github.io/FARAK/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="FARAK — the word FARAK drawn as striped scanimation art in white and violet">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FARAK | Scanimation Art Generator">
+<meta name="twitter:description" content="Turn any photos or videos into scanimation art. FARAK builds the striped image and matching overlay in your browser — your files never leave your device.">
+<meta name="twitter:image" content="https://fatinanjum16.github.io/FARAK/assets/og-image.png">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebSite",
+   "@id": "https://fatinanjum16.github.io/FARAK/#website",
+   "url": "https://fatinanjum16.github.io/FARAK/",
+   "name": "FARAK",
+   "alternateName": [
+    "FARAK Scanimation Art Generator"
+   ],
+   "inLanguage": "en"
+  },
+  {
+   "@type": "WebApplication",
+   "@id": "https://fatinanjum16.github.io/FARAK/#app",
+   "name": "FARAK",
+   "alternateName": "FARAK Scanimation Art Generator",
+   "url": "https://fatinanjum16.github.io/FARAK/",
+   "description": "Turn any photos or videos into scanimation art. FARAK builds the striped image and matching overlay in your browser — your files never leave your device.",
+   "applicationCategory": "MultimediaApplication",
+   "operatingSystem": "Any (runs in a web browser)",
+   "browserRequirements": "Requires JavaScript",
+   "image": "https://fatinanjum16.github.io/FARAK/assets/og-image.png",
+   "isPartOf": {
+    "@id": "https://fatinanjum16.github.io/FARAK/#website"
+   },
+   "inLanguage": "en",
+   "copyrightYear": 2026,
+   "copyrightNotice": "© 2026 FARAK. All rights reserved.",
+   "featureList": [
+    "Turn 1–8 photos into scanimation art",
+    "Turn a short video clip into scanimation art",
+    "Matching overlay grid for the striped image",
+    "Runs in your browser — nothing is uploaded"
+   ]
+  }
+ ]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#f3f1ec;
+    --dim:rgba(243,241,236,0.62);
+    --hair:rgba(255,255,255,0.28);
+    --glass:linear-gradient(165deg,rgba(255,255,255,.16),rgba(255,255,255,.04) 28%,rgba(255,255,255,.012) 60%,rgba(255,255,255,.08));
+    --float:0 30px 80px -40px rgba(0,0,0,.8);
+    --ease:cubic-bezier(.22,1,.36,1);
+    --spring:cubic-bezier(.34,1.56,.64,1);   /* iOS-style overshoot bounce, for liquid/elastic motion */
+    --serif:"Instrument Serif",Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;
+    --sy:0px;
+    --sx:0px;
+    --gx:0px;   /* gyro tilt x */
+    --gy:0px;   /* gyro tilt y */
+    /* unified fillet scale — every rounded-corner surface pulls from one of these three */
+    --r-card:2rem;      /* outer containers / sheets */
+    --r-sm:1rem;         /* thumbnails, filmstrip, small chrome */
+    --r-pill:999px;      /* every tappable button, no exceptions */
+    /* unified spacing scale — every gap/padding pulls from one of these */
+    --sp-1:8px;
+    --sp-2:12px;
+    --sp-3:16px;
+    --sp-4:24px;
+    /* no accent color — every control stays neutral frosted white */
+    /* iOS trim frame — same shape language as Apple's trim tool, just not yellow. */
+    --trim:#f3f1ec;
+    --r-trim:7px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;color:var(--ink);font-family:var(--sans);min-height:100dvh;overflow-x:hidden;
+    display:flex;flex-direction:column;
+    background-color:#101018;
+    background-image:
+      radial-gradient(120% 90% at calc(12% + var(--sx) + var(--gx)) calc(-10% + var(--sy) + var(--gy)), rgba(76,102,180,.52), transparent 60%),
+      radial-gradient(90% 70% at calc(90% - var(--sx) - var(--gx)) calc(8% + var(--sy) + var(--gy)), rgba(196,104,68,.36), transparent 62%),
+      radial-gradient(100% 80% at 50% calc(115% + var(--sy) + var(--gy)), rgba(104,72,164,.42), transparent 65%),
+      radial-gradient(70% 55% at calc(78% + var(--sx)) calc(70% - var(--gy)), rgba(70,190,168,.14), transparent 68%);
+    background-attachment:fixed;
+  }
+  /* ---- ambient aurora: a second, independent background layer that drifts and
+     breathes on its own slow cycle — always alive, even with zero touch/scroll/gyro
+     input, so the page never looks static. Sits above body's own gradient, below
+     the grain, so the interactive parallax layer above still reads clearly on top. */
+  body::before{
+    content:'';position:fixed;inset:-12%;z-index:-2;pointer-events:none;
+    background-image:
+      radial-gradient(32% 26% at 22% 28%, rgba(130,150,255,.30), transparent 70%),
+      radial-gradient(28% 24% at 80% 18%, rgba(255,160,120,.24), transparent 70%),
+      radial-gradient(38% 30% at 55% 92%, rgba(160,120,230,.26), transparent 70%),
+      radial-gradient(26% 20% at 75% 62%, rgba(100,220,190,.14), transparent 70%);
+    filter:blur(50px) saturate(165%);
+    animation:auroraDrift 28s ease-in-out infinite alternate, auroraHue 44s linear infinite;
+    will-change:transform,filter;
+  }
+  @keyframes auroraDrift{
+    0%{transform:translate3d(0,0,0) scale(1) rotate(0deg);}
+    33%{transform:translate3d(-2.5%,3%,0) scale(1.05) rotate(2deg);}
+    66%{transform:translate3d(3%,-2%,0) scale(1.02) rotate(-1.5deg);}
+    100%{transform:translate3d(-1.5%,2.5%,0) scale(1.07) rotate(1deg);}
+  }
+  @keyframes auroraHue{
+    0%{filter:blur(50px) saturate(165%) hue-rotate(0deg);}
+    50%{filter:blur(58px) saturate(185%) hue-rotate(14deg);}
+    100%{filter:blur(50px) saturate(165%) hue-rotate(0deg);}
+  }
+  .grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.6;
+    background-image:radial-gradient(rgba(255,255,255,.05) .5px, transparent .5px);background-size:3px 3px;}
+  @media (prefers-reduced-motion: reduce){
+    body::before{animation:none;}
+  }
+  main{max-width:680px;margin:0 auto;width:100%;flex:1 0 auto;padding:calc(env(safe-area-inset-top) + 3.5rem) 20px calc(env(safe-area-inset-bottom) + 3rem);}
+
+  @keyframes rise{from{opacity:0;transform:translateY(18px) scale(.985);filter:blur(6px);}to{opacity:1;transform:none;filter:blur(0);}}
+  @keyframes drift{from{background-position:0 0;}to{background-position:28px 0;}}
+  .rise{animation:rise .72s var(--ease) both;}
+
+  header{text-align:center;margin-bottom:48px;}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+  /* the header logo is a REAL scanimation, built by the exact same algorithm
+     as buildComposite()/buildOverlay() below — two synthetic "photos" (white
+     upright FARAK, purple italic FARAK) interlaced at UNIT=2px, auto-playing
+     at the same 3s reveal cycle the app's own photo-mode preview uses. */
+  #logoUnit{position:relative;display:inline-block;line-height:0;margin-bottom:.3em;}
+  /* the logo's comb pattern is drawn pixel-for-pixel at UNIT=2px columns; fitLogoToViewport
+     then shrinks it with a CSS transform on narrow phones. Left to the browser's default
+     smoothing, that downscale blends adjacent 2px white/purple columns together — and
+     because the canvas is transparent between glyphs, that blend also pulls in whatever
+     colour sits behind it (the page's own orange/purple background), which is exactly the
+     stray warm-coloured fringing seen in the recorded video. Forcing nearest-neighbour
+     scaling keeps every column crisp and fully opaque, so no background colour can bleed
+     through the pattern. */
+  #logoComposite{display:block;position:absolute;left:0;top:0;transform-origin:0 0;image-rendering:pixelated;image-rendering:-webkit-optimize-contrast;image-rendering:crisp-edges;}
+  .line{font-family:var(--serif);font-style:italic;color:var(--dim);font-size:1.1rem;max-width:100%;margin:16px auto 0;line-height:1.35;white-space:nowrap;overflow:hidden;}
+  /* credit line — a normal flex sibling after <main>, never position:fixed.
+     On short pages, main's flex-grow pushes this down to the true bottom
+     of the screen. On tall pages, it simply comes after the content and
+     scrolls away with it — it can never float over content mid-scroll.
+     one quiet row: [FATIN] logo [©Farak · 2026] */
+  #credit{flex:0 0 auto;margin:20px 0;
+    display:flex;flex-direction:row;align-items:center;justify-content:center;gap:6px;
+    pointer-events:none;background:transparent;}
+  #credit img{display:block;width:14px;height:14px;object-fit:contain;opacity:.75;flex:0 0 auto;}
+  #credit .brand{font-family:var(--serif);font-size:.62rem;letter-spacing:.22em;
+    text-indent:.22em;color:var(--dim);opacity:.75;}
+  #credit .copy{font-family:var(--serif);font-size:.62rem;letter-spacing:.02em;color:var(--dim);opacity:.55;}
+  /* the ONLY comb on the page: a strip that races across the full width,
+     one direction only (wraps, never bounces). Its size is set in JS to
+     exactly match the logo's real W×H — see the marquee script below —
+     so that when it passes over the logo it fully covers the text instead
+     of a mismatched, undersized patch. */
+  #marquee{position:absolute;top:0;left:-260px;visibility:hidden;pointer-events:auto;touch-action:none;cursor:grab;z-index:5;
+    background-image:repeating-linear-gradient(90deg,transparent 0,transparent 2px,#14141c 2px,#14141c 4px);
+    opacity:0;transition:opacity .5s var(--ease);}
+  #marquee.dragging{cursor:grabbing;}
+  /* minimal, symmetric, wordless drag affordance: two thin outline chevrons
+     pointing away from a shared center — same stroke weight as the logo's
+     own linework, so it reads as part of the brand rather than generic
+     UI chrome. Faint enough to read as a detail of the strip itself. */
+  #marquee::before,#marquee::after{content:'';position:absolute;top:50%;width:8px;height:16px;
+    background-repeat:no-repeat;background-position:center;background-size:contain;
+    opacity:.45;transform:translateY(-50%);transition:opacity .18s var(--ease),filter .18s var(--ease);}
+  #marquee::before{left:calc(50% - 13px);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 16'%3E%3Cpath d='M6 2L2 8L6 14' stroke='%23f3f1ec' stroke-width='1.3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");}
+  #marquee::after{left:calc(50% + 5px);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 16'%3E%3Cpath d='M2 2L6 8L2 14' stroke='%23f3f1ec' stroke-width='1.3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");}
+  /* held/dragging: chevrons light up — confirms the touch actually landed
+     on the strip. Clears the instant the pointer lifts (see .dragging
+     add/remove in the marquee script). */
+  #marquee.dragging::before,#marquee.dragging::after{opacity:1;
+    filter:drop-shadow(0 0 3px #f3f1ec) drop-shadow(0 0 7px rgba(180,150,255,.9));}
+
+  .glass{background:var(--glass);-webkit-backdrop-filter:blur(30px) saturate(200%) brightness(1.14) contrast(1.02);backdrop-filter:blur(30px) saturate(200%) brightness(1.14) contrast(1.02);-webkit-backdrop-filter:blur(30px) saturate(200%) brightness(1.14) contrast(1.02);border:1px solid var(--hair);
+    box-shadow:var(--float),
+    inset 0 1px 1px rgba(255,255,255,.55),
+    inset 0 -1px 1px rgba(255,255,255,.1),
+    inset 1px 0 1px rgba(255,255,255,.14),
+    inset -1px 0 1px rgba(255,255,255,.14),
+    inset 0 0 24px rgba(255,255,255,.05);
+    position:relative;
+    transform:translate3d(calc(var(--gx) * -0.35), calc(var(--gy) * -0.35), 0);
+    will-change:transform;}
+  /* liquid-glass specular sheen: a soft light pooled at the top edge, like iOS 26 */
+  .glass::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:
+      radial-gradient(120% 60% at calc(20% + var(--gx)) calc(-8% + var(--gy)), rgba(255,255,255,.22), transparent 55%),
+      radial-gradient(100% 50% at calc(85% - var(--gx)) calc(108% - var(--gy)), rgba(255,255,255,.1), transparent 60%);}
+  /* liquid-glass sheen sweep: a soft diagonal highlight that slowly glides across the
+     surface, like light catching the curve of real liquid glass — subtle, slow, never
+     distracting, and it pauses cleanly under prefers-reduced-motion. */
+  .glass::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.10) 45%,rgba(255,255,255,.16) 50%,rgba(255,255,255,.10) 55%,transparent 70%);
+    background-size:260% 260%;background-position:0% 50%;
+    mix-blend-mode:overlay;opacity:.85;
+    animation:sheenSweep 9s ease-in-out infinite;}
+  @keyframes sheenSweep{
+    0%{background-position:0% 20%;}
+    50%{background-position:100% 80%;}
+    100%{background-position:0% 20%;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .glass::after{animation:none;background-position:20% 30%;}
+  }
+  .fringe{background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.1) 0 1px,transparent 1px 7px);}
+  /* Safari/WebKit renders backdrop-filter with square corners even when border-radius is set;
+     this mask forces the blur to respect the rounded edge on every frosted surface. */
+  .glass,.pick,.thumb .rm,.solid,.round,#scrub,#scrubHandle,#dl,#card{
+    -webkit-mask-image:-webkit-radial-gradient(white,black);
+    mask-image:radial-gradient(white,black);}
+
+  /* one continuous frosted sheet holds source + trim + settings, like a grouped Settings.app list */
+  #flow{border-radius:var(--r-card);padding:var(--sp-1);overflow:hidden;}
+  /* Video/Photos switch works like a seekbar: TAP a side to jump there, or grab the pill
+     and SLIDE it across. --p is the pill's position (0 = Video, 1 = Photos, fractional
+     while the finger is moving); the JS in "mode" below drives it. touch-action:pan-y lets
+     the page still scroll vertically while horizontal drags are handed to the pill. */
+  .tabs{position:relative;display:flex;height:56px;margin:5px 5px 0;padding:0;border-radius:var(--r-pill);background:rgba(255,255,255,.012);
+    touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+  .pill{position:absolute;top:0;bottom:0;left:0;width:50%;border-radius:var(--r-pill);background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(236,236,247,.84));
+    box-shadow:0 10px 30px -14px rgba(0,0,0,.9),inset 0 1px 1px rgba(255,255,255,.95),inset 0 -8px 16px -6px rgba(140,150,224,.3);
+    transform:translateX(calc(var(--p,0) * 100%));
+    transition:transform .62s var(--spring),scale .4s var(--spring);will-change:transform;}
+  /* while held: the pill follows the finger 1:1 (no easing on position) and swells a touch */
+  /* --st = how fast the finger is moving: the faster, the more the pill stretches along its travel and thins out, like a drop of liquid being dragged (its scale lags on a spring, so it trails and snaps back) */
+  .tabs.dragging .pill{transition:transform 0s,scale .3s var(--spring);scale:calc(1.05 + var(--st,0)) calc(1.1 - var(--st,0) * .6);}
+  .tabs.dragging,.tabs.dragging .tab{cursor:grabbing;}
+  .tab{position:relative;z-index:1;flex:1;height:100%;display:flex;align-items:center;justify-content:center;
+    border:0;background:none;padding:0;font:400 1.05rem var(--serif);
+    transform:scaleY(1.14);transform-origin:50% 55%;
+    border-radius:var(--r-pill);overflow:hidden; /* keeps the tap ripple inside its own half instead of spilling over the picker below */
+    color:var(--dim);cursor:pointer;transition:color .4s var(--ease);}
+  .tab:focus-visible{outline:2px solid rgba(255,255,255,.75);outline-offset:-4px;}
+  .tabs.video .tab[data-m=video],.tabs.photos .tab[data-m=photos]{color:#16161d;}
+  .pickers{padding:10px 5px 5px;}
+  .pick{width:100%;height:56px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+    border:1px solid rgba(255,255,255,.22);border-radius:var(--r-pill);
+    background:linear-gradient(170deg,rgba(255,255,255,.1),rgba(255,255,255,.015) 55%,rgba(255,255,255,.05));
+    backdrop-filter:blur(20px) saturate(200%) brightness(1.12);-webkit-backdrop-filter:blur(20px) saturate(200%) brightness(1.12);color:var(--ink);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.4),inset 0 -1px 1px rgba(255,255,255,.08),inset 0 0 16px rgba(255,255,255,.04),0 8px 24px -14px rgba(0,0,0,.6);
+    padding:0 var(--sp-4);font-family:var(--serif);font-size:1.25rem;white-space:nowrap;
+    cursor:pointer;transition:transform .5s var(--spring),border-color .4s var(--ease),background .4s var(--ease),box-shadow .4s var(--ease);}
+  .pick:hover{border-color:rgba(255,255,255,.32);background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.012) 60%);}
+  .waterRipple{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.55),rgba(255,255,255,0) 70%);
+    pointer-events:none;transform:translate(-50%,-50%) scale(0);mix-blend-mode:overlay;}
+  .pick.drag{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.01);}
+  .pick:disabled{opacity:.4;cursor:not-allowed;}
+  .pick:disabled:hover{border-color:rgba(255,255,255,.14);background:linear-gradient(170deg,rgba(255,255,255,.1),rgba(255,255,255,.015) 55%,rgba(255,255,255,.05));}
+  /* photos share the full row equally: 8 columns on wide screens, 4 (two rows) on phones —
+     so every photo is the same, as large as the width allows, flush with the buttons above */
+  #thumbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp-1);margin-top:var(--sp-2);padding:0;}
+  @media (min-width:560px){#thumbs{grid-template-columns:repeat(8,minmax(0,1fr));}}
+  #thumbs:empty{display:none;margin:0;padding:0;}
+  .thumb{position:relative;min-width:0;animation:thumbPop .62s var(--spring) backwards;cursor:pointer;transition:transform .5s var(--spring),box-shadow .3s var(--ease);
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;border-radius:var(--r-sm);}
+  .thumb.seen{animation:none;}
+  /* (entrance animation uses fill-mode "backwards", not "both": with "both" its final
+     transform:none kept overriding this selected lift forever) */
+  .thumb.selected{transform:translateY(-4px) scale(1.03);box-shadow:0 0 0 2px #fff,0 10px 20px -8px rgba(0,0,0,.7);}
+  .thumb img{display:block;width:100%;height:auto;aspect-ratio:1/1;border-radius:var(--r-sm);object-fit:cover;-webkit-user-drag:none;pointer-events:none;}
+  .thumb .rm{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:var(--r-pill);
+    border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.06);backdrop-filter:blur(6px);
+    color:rgba(255,255,255,.85);font-size:.72rem;line-height:1;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;padding:0;transition:background .2s var(--ease);}
+  .thumb .rm:hover{background:rgba(255,255,255,.16);}
+  input[type=file],video#src{display:none;}
+
+  /* collapsible sections — no longer separate cards, just grouped rows inside #flow with a hairline divider */
+  .fold{overflow:hidden;max-height:0;opacity:0;margin-top:0;padding:0 var(--sp-3);border-top:0 solid transparent;
+    pointer-events:none;transition:all .7s var(--ease);}
+  .fold.open{opacity:1;pointer-events:auto;margin-top:var(--sp-1);border-top-width:1px;border-top-color:var(--hair);}
+  #trim.open{max-height:280px;padding:10px 5px 5px;border-top-width:0;margin-top:0;}
+  #settings.open{max-height:460px;padding:0 5px 5px;border-top-color:transparent;}
+
+  .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;padding:0 8px;}
+  .lbl{font-size:.9rem;color:var(--dim);font-family:var(--serif);}
+  .hint{margin-top:var(--sp-2);padding:9px 12px;border-radius:var(--r-sm);background:rgba(96,100,190,.16);
+    border:1px solid rgba(140,150,230,.35);color:rgba(214,210,255,.85);font:400 .92rem var(--serif);}
+  .val{font-family:var(--serif);font-size:1.15rem;font-variant-numeric:tabular-nums;}
+  .val .sub{color:var(--dim);}
+
+  #filmOuter{position:relative;height:68px;margin:0;user-select:none;
+    overflow:hidden;border-radius:var(--r-sm);}
+  .trimBadge{position:absolute;top:6px;left:50%;transform:translateX(-50%);z-index:6;
+    padding:2px 9px;border-radius:999px;background:rgba(10,8,20,.55);
+    font-family:var(--serif);font-size:.78rem;font-variant-numeric:tabular-nums;
+    color:#fff;pointer-events:none;opacity:0;transition:opacity .2s var(--ease);}
+  #filmOuter.touching .trimBadge{opacity:1;}
+  .trimBadge .sub{color:var(--dim);}
+  /* Handles (#hL/#hR) are positioned as siblings of #filmClip, not children of it, so
+     #filmClip's own overflow:hidden never clipped them. Combined with l/r tracking the
+     pointer past the current view's mapped edge during a drag (see layoutTrim), that
+     meant a handle dragged toward/past the true edge could visibly poke out past the
+     strip's rounded corner into the surrounding padding. Clipping at #filmOuter itself
+     — the shared bounding box of filmClip AND the handles — means anything past the
+     true rounded silhouette is hidden, so it reads as sliding smoothly in behind the
+     edge rather than sticking out past the border. */
+  #filmClip{position:absolute;inset:0;border-radius:var(--r-sm);overflow:hidden;background:rgba(255,255,255,.012);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);}
+  #filmstrip{display:block;width:100%;height:68px;border-radius:var(--r-sm);filter:saturate(0.9);transition:opacity .25s var(--ease);}
+  /* The dark "outside selection" areas used to be separate .shade divs with their own
+     border-radius. Because that radius could never perfectly line up with #sel's own
+     rounded corner, a small square notch of raw filmstrip always peeked through at each
+     corner. Fix: dim everything with one huge spread box-shadow cast BY #sel itself, so
+     the dim area is mathematically guaranteed to follow #sel's exact curve — no seam. */
+  .shade{display:none;}
+  /* The selection is a single 3px border, always — no separate outer ring/outline/glow
+     element, and no fill either. That keeps the visible border the exact same thickness
+     at rest and while pressed, and keeps the video frames inside completely untouched —
+     only the border itself (the "envelope") dims/brightens, the same way .pick:hover
+     brightens a button's own border elsewhere in this UI. Dimming outside is done via one
+     huge spread box-shadow cast by #sel itself, so it always matches #sel's own curve
+     exactly, no seam. */
+  /* iOS's trim tool is one continuous flat-color shape — thin top/bottom bars fused
+     into chunky end-caps, everything the same solid tone, no gradient, no yellow.
+     The old version let the handles spread wider than the true selection on narrow
+     trims, which meant they could cover the entire visible clip. This version never
+     does that: handles always sit flush INSIDE the true edges (see layoutTrim), and
+     the JS enforces a dynamic minimum trim width in pixels so there is always a real,
+     uncovered peek window of footage between them — structurally, not as a patch. */
+  #sel{position:absolute;top:0;bottom:0;border-top:4px solid var(--trim);border-bottom:4px solid var(--trim);
+    border-radius:var(--r-trim);touch-action:none;
+    box-shadow:0 0 0 9999px rgba(6,6,10,.62),0 6px 18px -8px rgba(0,0,0,.8);}
+  /* #sel intentionally has NO transition on left/width: the handles (#hL/#hR) also
+     snap instantly (no left transition on .handle), and rezoomToSelection() redraws
+     the filmstrip's thumbnails instantly (a canvas redraw, not animated). If #sel eased
+     its position while the handles and thumbnails jumped immediately, the bright
+     selection box would visibly lag behind them for ~180ms after every rezoom —
+     looking like the border sinks/cuts into the frame instead of staying flush with
+     the handles. All three (sel, hL, hR) must move in the same frame, in lockstep. */
+  /* Pressed/dragging state: the whole frame brightens slightly, like a light switching
+     on. left/width stay out of this rule's transition list so dragging still tracks the
+     pointer instantly; on release, the base rule's slower .18s transition eases it back. */
+  #sel.live{transition:filter .12s var(--ease);filter:brightness(1.1);}
+  .handle{position:absolute;top:0;bottom:0;width:24px;display:flex;align-items:center;justify-content:center;gap:3px;
+    background:var(--trim);
+    cursor:ew-resize;touch-action:none;transition:filter .2s var(--ease),transform .15s var(--ease);}
+  .handle::before,.handle::after{content:'';width:2.5px;height:16px;border-radius:999px;background:rgba(20,20,26,.55);}
+  .handle.live{filter:brightness(1.1);transform:scaleX(1.08);}
+  #hL{border-radius:var(--r-trim) 0 0 var(--r-trim);transform-origin:left center;}
+  #hR{border-radius:0 var(--r-trim) var(--r-trim) 0;transform-origin:right center;}
+  /* .handle:active's scaleX(1.08) press-feedback grows from the CSS transform-origin.
+     The default origin (center) makes the handle bulge equally in both directions —
+     harmless when there's slack on the outer side, but when a handle is dragged flush
+     against the true start/end edge, that outward bulge has nowhere to go but past the
+     filmstrip's boundary, visibly poking out (hL/hR live outside #filmClip's
+     overflow:hidden, so nothing clips it). Anchoring the origin to each handle's OUTER
+     edge means the outer edge never moves — all the press-growth happens inward,
+     toward the selection, where it just blends into content that's already there. */
+
+  .field{margin-bottom:var(--sp-4);}
+  input[type=range]{appearance:none;-webkit-appearance:none;width:100%;background:transparent;}
+  input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:var(--r-pill);background:rgba(255,255,255,.03);transition:background .3s var(--ease);}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-9.5px;border-radius:var(--r-pill);
+    background:rgba(255,255,255,.88);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.9);
+    box-shadow:0 6px 18px -6px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.6);
+    transition:transform .25s var(--ease),filter .25s var(--ease);}
+  input[type=range]:active::-webkit-slider-thumb{transform:scale(1.18);filter:brightness(1.05);}
+  input[type=range]::-moz-range-track{height:3px;border-radius:var(--r-pill);background:rgba(255,255,255,.03);}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border:1px solid rgba(255,255,255,.9);border-radius:var(--r-pill);
+    background:rgba(255,255,255,.88);transition:transform .25s var(--ease);}
+  input[type=range]:disabled{opacity:.35;}
+
+  .solid{width:100%;height:56px;border:1px solid rgba(255,255,255,.45);border-radius:var(--r-pill);
+    background:linear-gradient(165deg,rgba(255,255,255,.42),rgba(255,255,255,.14) 45%,rgba(255,255,255,.26));
+    backdrop-filter:blur(24px) saturate(220%) brightness(1.16);-webkit-backdrop-filter:blur(24px) saturate(220%) brightness(1.16);color:#16161d;
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.85),inset 0 -1px 1px rgba(255,255,255,.25),inset 0 0 18px rgba(255,255,255,.12),0 10px 26px -14px rgba(0,0,0,.7);
+    font-family:var(--serif);font-size:1.2rem;padding:0 16px;cursor:pointer;position:relative;overflow:hidden;
+    transition:transform .5s var(--ease);}
+  .solid:disabled{opacity:.6;}
+  .solid .busy{position:absolute;inset:0;opacity:.4;mix-blend-mode:overlay;animation:drift 2.6s linear infinite;}
+
+  /* preview */
+  #preview{margin-top:0;height:0;overflow:hidden;opacity:0;pointer-events:none;transition:all .7s var(--ease);}
+  #preview.open{margin-top:var(--sp-4);height:auto;opacity:1;pointer-events:auto;}
+  /* The preview's frosted frame is deliberately STATIC: no gyro/cursor parallax, no
+     gliding sheen sweep, no moving specular. The sweep (::after, overlay blend) used to
+     drift right across the stage and tint the picture, which made the scanimation hard
+     to read. Everything inside now also sits above the glass' pseudo-layers. */
+  #previewGlass{border-radius:var(--r-card);padding:13px;transform:none;will-change:auto;}
+  #previewGlass::before{z-index:0;
+    background:
+      radial-gradient(120% 60% at 20% -8%, rgba(255,255,255,.14), transparent 55%),
+      radial-gradient(100% 50% at 85% 108%, rgba(255,255,255,.07), transparent 60%);}
+  #previewGlass::after{content:none;display:none;animation:none;}
+  #previewGlass > *{position:relative;z-index:1;}
+  #stage{position:relative;width:100%;overflow:hidden;border-radius:var(--r-sm);background:#000;
+    border:1px solid var(--hair);
+    touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:grab;}
+  #stage:active{cursor:grabbing;}
+  #composite{display:block;width:100%;}
+  #overlay{position:absolute;top:0;left:0;height:100%;pointer-events:none;}
+  /* thickness: a twin of the play button (same .round glass circle, same size), sitting right
+     beside it. Its icon shows the current stripe size; each tap steps to the next size
+     (1 -> 6, then back to 1) with a squish + ripple, and the icon's stripes swell/shrink
+     like a drop of water. */
+  #thickBtn{position:relative;overflow:hidden;padding:0;touch-action:manipulation;outline:none;}
+  #thickBtn:focus-visible{border-color:rgba(255,255,255,.85);}
+  #thickBtn i{display:block;width:24px;height:18px;border-radius:3px;pointer-events:none;
+    background-image:linear-gradient(90deg,currentColor 50%,transparent 50%);
+    background-size:calc(var(--w,2)*2px) 100%;
+    transition:background-size .6s cubic-bezier(.34,1.56,.64,1);}
+  #thickBtn .ripple{position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    border:1.5px solid rgba(255,255,255,.75);}
+  .controls{display:flex;flex-wrap:nowrap;align-items:center;gap:var(--sp-1);margin-top:var(--sp-2);padding:0;}
+  .round{width:56px;height:56px;flex:0 0 auto;border:1px solid rgba(255,255,255,.25);border-radius:var(--r-pill);position:relative;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(170deg,rgba(255,255,255,.14),rgba(255,255,255,.03) 55%,rgba(255,255,255,.08));
+    backdrop-filter:blur(20px) saturate(200%) brightness(1.12);-webkit-backdrop-filter:blur(20px) saturate(200%) brightness(1.12);color:var(--ink);font-size:1.05rem;cursor:pointer;
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.5),inset 0 -1px 1px rgba(255,255,255,.1),inset 0 0 14px rgba(255,255,255,.05),0 8px 20px -12px rgba(0,0,0,.7);
+    transition:transform .5s var(--spring),background .4s var(--ease);}
+  .round:active{transform:scale(.88);}
+  #scrub{position:relative;flex:1 1 0;min-width:0;height:56px;border-radius:var(--r-pill);background:rgba(255,255,255,.01);
+    border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);box-shadow:inset 0 1px 1px rgba(255,255,255,.18),inset 0 -1px 1px rgba(0,0,0,.15);touch-action:none;user-select:none;}
+  #scrubHandle{position:absolute;top:50%;transform:translateY(-50%);width:56px;height:56px;border-radius:var(--r-pill);
+    background:linear-gradient(170deg,rgba(255,255,255,.78),rgba(255,255,255,.5));backdrop-filter:blur(18px) saturate(200%);-webkit-backdrop-filter:blur(18px) saturate(200%);border:1px solid rgba(255,255,255,.85);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 6px 16px -8px rgba(0,0,0,.7);
+    transition:filter .2s var(--ease),scale .45s var(--spring);}
+  #scrub:active #scrubHandle{filter:brightness(1.05);}
+  #scrubHandle.live{scale:1.14 .96;}
+  #dl{width:56px;height:56px;flex:0 0 auto;padding:0;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.45);border-radius:var(--r-pill);position:relative;overflow:hidden;
+    background:linear-gradient(165deg,rgba(255,255,255,.42),rgba(255,255,255,.14) 45%,rgba(255,255,255,.26));
+    backdrop-filter:blur(24px) saturate(220%) brightness(1.16);-webkit-backdrop-filter:blur(24px) saturate(220%) brightness(1.16);color:#16161d;
+    cursor:pointer;
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.85),inset 0 -1px 1px rgba(255,255,255,.25),inset 0 0 18px rgba(255,255,255,.12),0 10px 26px -14px rgba(0,0,0,.7);
+    transition:transform .5s var(--spring);}
+  #dl:active{transform:scale(.92);}
+
+  /* modal */
+  #modal{position:fixed;inset:0;z-index:50;display:none;place-items:center;padding:24px;}
+  #modal.show{display:grid;}
+  #veil{position:absolute;inset:0;background:rgba(0,0,0,.45);opacity:0;transition:opacity .5s var(--ease);}
+  #card{position:relative;width:100%;max-width:24rem;border-radius:var(--r-card);padding:40px 32px;text-align:center;
+    opacity:0;transform:translateY(24px) scale(.92);transition:opacity .4s var(--ease),transform .68s var(--spring);}
+  #modal.in #veil{opacity:1;}
+  #modal.in #card{opacity:1;transform:none;}
+  #modal.in{backdrop-filter:blur(40px) saturate(200%);-webkit-backdrop-filter:blur(40px) saturate(200%);}
+  #card h2{font-family:var(--serif);font-weight:400;font-size:2.1rem;line-height:1.15;margin:0;}
+  #card p{color:var(--dim);font-family:var(--serif);font-size:1.05rem;line-height:1.5;margin:16px 0 0;
+    transform:scaleY(1.14);transform-origin:50% 0%;}
+  #card p.small{font-size:.92rem;opacity:.75;margin-top:8px;}
+  .acts{margin-top:32px;display:flex;flex-direction:column;gap:var(--sp-1);}
+  .acts button{border:0;border-radius:var(--r-pill);padding:16px;cursor:pointer;position:relative;overflow:hidden;transition:transform .5s var(--spring),background .4s var(--ease),color .4s var(--ease);}
+  #promise{border:1px solid rgba(255,255,255,.45);
+    background:linear-gradient(165deg,rgba(255,255,255,.42),rgba(255,255,255,.14) 45%,rgba(255,255,255,.26));
+    backdrop-filter:blur(20px) saturate(180%);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.85),inset 0 -1px 1px rgba(255,255,255,.25),inset 0 0 18px rgba(255,255,255,.12),0 10px 26px -14px rgba(0,0,0,.7);
+    color:#16161d;font-family:var(--serif);font-size:1.15rem;}
+  #promise:active{transform:scale(.97);}
+  #notnow{background:none;color:var(--dim);font-size:1.02rem;font-family:var(--serif);
+    transform:scaleY(1.14);transform-origin:50% 50%;}
+  #notnow:hover{color:var(--ink);}
+
+  /* ================= liquid extras ================= */
+  @keyframes thumbPop{
+    from{opacity:0;transform:translateY(14px) scale(.7);}
+    to{opacity:1;transform:none;}
+  }
+  .thumb:active{transform:scale(.94);}
+  .thumb.selected:active{transform:translateY(-4px) scale(.98);}
+  /* water bag: every glass button is a bag of water. The cursor (or finger) presses a dent into it.
+     --mx/--my = where the dent sits, --dp = how deep it is (0 → 1+, driven by the "water bag" script).
+     No white light any more: the surface sinks and darkens under the press, with a thin lit rim
+     where the water curves back up around it. z-index:-1 keeps the label crisp above the dent. */
+  .pick::before,.solid::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+    --R:calc(46px + var(--dp,0) * 34px);
+    background:
+      radial-gradient(circle var(--R) at var(--mx,50%) calc(var(--my,50%) + 4px),
+        transparent 0, transparent calc(var(--R) - 16px),
+        rgba(255,255,255,calc(.17 * var(--dp,0))) calc(var(--R) - 6px), transparent var(--R)),
+      radial-gradient(circle var(--R) at var(--mx,50%) var(--my,50%),
+        rgba(8,12,44,calc(.44 * var(--dp,0))), rgba(8,12,44,calc(.2 * var(--dp,0))) 55%, transparent 100%);}
+  /* Create fills like liquid rising through the button while it works (--prog 0→1) */
+  .solid::after{content:'';position:absolute;inset:0;width:calc(var(--prog,0) * 100%);border-radius:inherit;pointer-events:none;
+    background:linear-gradient(90deg,rgba(255,255,255,.12),rgba(255,255,255,.5));mix-blend-mode:overlay;
+    transition:width .4s var(--ease),opacity .4s var(--ease);}
+  .solid.flush::after{opacity:0;}
+  @media (prefers-reduced-motion: reduce){
+    .thumb{animation:none;}
+    .pick::before,.solid::before{display:none;}
+    .tabs.dragging .pill{scale:1.03 1.05;}
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<main>
+  <header class="rise">
+    <h1 class="sr-only">FARAK — Scanimation Art Generator</h1>
+    <p class="sr-only">Turn any photos or videos into scanimation art: pick a short video or up to eight photos, and FARAK builds the striped image and the matching overlay in your browser.</p>
+    <div id="logoUnit" aria-hidden="true">
+      <canvas id="logoComposite"></canvas>
+    </div>
+    <p class="line">Between the First & the Last Breath Lies Life</p>
+    <noscript><p style="margin:1.4rem 0 0;color:rgba(243,241,236,.7);font:1rem/1.5 Georgia,serif">FARAK needs JavaScript to turn your photos or videos into scanimation art. Please turn JavaScript on and reload.</p></noscript>
+  </header>
+
+  <div id="marquee" aria-hidden="true"></div>
+
+  <script>
+  /* keep the tagline on exactly one line, on any screen: start it at the
+     bigger size set in CSS, then shrink font-size in small steps only if
+     it's actually too wide for the viewport — never let it wrap to a
+     second line. */
+  (function(){
+    const el=document.querySelector('.line');
+    if(!el) return;
+    const BASE_REM=1.1, MIN_REM=0.6, STEP=0.02;
+    function fit(){
+      let size=BASE_REM;
+      el.style.fontSize=size+'rem';
+      const avail=el.parentElement.clientWidth;
+      let guard=0;
+      while(el.scrollWidth>avail && size>MIN_REM && guard<80){
+        size-=STEP;
+        el.style.fontSize=size.toFixed(3)+'rem';
+        guard++;
+      }
+    }
+    (document.fonts&&document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(fit);
+    window.addEventListener('resize',fit);
+    window.addEventListener('orientationchange',fit);
+  })();
+  </script>
+
+  <section id="flow" class="glass rise" style="animation-delay:.08s">
+    <div id="source">
+      <div class="tabs video" id="tabs" role="tablist" aria-label="Source">
+        <div class="pill" aria-hidden="true"></div>
+        <button class="tab" data-m="video" role="tab" aria-selected="true" type="button">Video</button>
+        <button class="tab" data-m="photos" role="tab" aria-selected="false" tabindex="-1" type="button">Photos</button>
+      </div>
+      <div class="pickers">
+        <button class="pick fringe" id="pickVideo">Choose a video</button>
+        <div id="photoWrap" style="display:none">
+          <button class="pick fringe" id="pickPhotos">Choose 1–8 photos</button>
+          <div id="reorderHint" class="hint" style="display:none">Tap a photo then tap another one to swap their order.</div>
+          <div id="thumbs"></div>
+        </div>
+      </div>
+    </div>
+
+    <input type="file" id="fileInput" accept="video/*">
+    <input type="file" id="photoInput" accept="image/*" multiple>
+    <video id="src" muted playsinline preload="auto"></video>
+
+    <div id="trim" class="fold">
+      <div id="filmOuter">
+        <div id="filmClip">
+          <canvas id="filmstrip"></canvas>
+          <div class="shade" id="shadeL" style="left:0;width:0"></div>
+          <div class="shade" id="shadeR" style="left:0;width:0"></div>
+          <div id="sel"></div>
+        </div>
+        <div class="handle" id="hL"></div>
+        <div class="handle" id="hR"></div>
+        <div class="trimBadge"><span id="trimLen">0.0s</span><span class="sub" id="trimMax"></span></div>
+      </div>
+    </div>
+
+    <div id="settings" class="fold">
+      <button class="solid" id="createBtn">Create</button>
+    </div>
+  </section>
+
+  <section id="preview">
+    <div id="previewGlass" class="glass">
+      <div id="stage">
+        <canvas id="composite"></canvas>
+        <canvas id="overlay"></canvas>
+      </div>
+      <div class="controls">
+        <button class="round" id="playBtn" aria-label="Auto-slide"><svg width="18" height="18" viewBox="0 0 18 18"><polygon points="4,2 16,9 4,16" fill="currentColor"/></svg></button>
+        <button class="round" id="thickBtn" type="button" aria-label="Change stripe thickness"><i></i></button>
+        <div id="scrub" class="fringe"><div id="scrubHandle"></div></div>
+        <button id="dl" aria-label="Download"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M5.5 8.8L10 13.3l4.5-4.5M4 16.5h12"/></svg></button>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="credit" aria-hidden="true"><span class="brand">FATIN</span><img src="data:image/png;base64,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" alt=""><span class="copy">&copy;&#xFE0E;FARAK &middot; 2026</span></div>
+
+
+<div id="modal">
+  <div id="veil"></div>
+  <div id="card" class="glass">
+    <h2>10¢ for a little good.</h2>
+    <p>Give 10¢ to a charity you believe in.</p>
+    <p class="small">No receipt. No account. Just your word.</p>
+    <div class="acts">
+      <button id="promise">I promise</button>
+      <button id="notnow">Not now</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* ---- scroll-reactive background light (floating glass feel) ---- */
+  (function(){
+    const root=document.documentElement;
+    let targetY=0, curY=0, targetX=0, curX=0, raf=null;
+    function onScroll(){
+      const y=window.scrollY||0, x=window.scrollX||0;
+      targetY=Math.max(-14,Math.min(14, y*0.018));
+      targetX=Math.max(-6,Math.min(6, x*0.02));
+      if(!raf) raf=requestAnimationFrame(step);
+    }
+    function step(){
+      curY += (targetY-curY)*0.08;
+      curX += (targetX-curX)*0.08;
+      root.style.setProperty('--sy', curY.toFixed(2)+'%');
+      root.style.setProperty('--sx', curX.toFixed(2)+'%');
+      if(Math.abs(targetY-curY)>0.01 || Math.abs(targetX-curX)>0.01){ raf=requestAnimationFrame(step); }
+      else { raf=null; }
+    }
+    window.addEventListener('scroll', onScroll, {passive:true});
+  })();
+
+  /* ---- liquid tilt: gyroscope (iOS permission-aware) + mouse fallback ---- */
+  (function(){
+    const root=document.documentElement;
+    let tx=0, ty=0, cx=0, cy=0, raf=null;
+    function tick(){
+      cx += (tx-cx)*0.12; cy += (ty-cy)*0.12;
+      root.style.setProperty('--gx', cx.toFixed(2)+'px');
+      root.style.setProperty('--gy', cy.toFixed(2)+'px');
+      if(Math.abs(tx-cx)>0.05 || Math.abs(ty-cy)>0.05) raf=requestAnimationFrame(tick);
+      else raf=null;
+    }
+    function kick(){ if(!raf) raf=requestAnimationFrame(tick); }
+    function orient(e){
+      if(e.gamma==null || e.beta==null) return;
+      // gamma: left/right tilt (-90..90), beta: front/back; holding angle ~45deg
+      tx=Math.max(-18, Math.min(18, e.gamma*0.7));
+      ty=Math.max(-18, Math.min(18, (e.beta-45)*0.7));
+      kick();
+    }
+    let enabled=false;
+    function stopAsking(){ window.removeEventListener('touchend', enable); window.removeEventListener('click', enable); }
+    function enable(){
+      if(enabled) return; enabled=true;
+      if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
+        DeviceOrientationEvent.requestPermission().then(r=>{
+          if(r==='granted') window.addEventListener('deviceorientation', orient);
+          stopAsking();
+        }).catch(()=>{ enabled=false; });      // failed (not a valid gesture yet?) — stay armed for the next tap instead of giving up for good
+      } else {
+        window.addEventListener('deviceorientation', orient);
+        stopAsking();
+      }
+    }
+    // iOS requires a user gesture for motion permission
+    window.addEventListener('touchend', enable);
+    window.addEventListener('click', enable);
+    // desktop: cursor drives the liquid. Pointer events with a type check, because the
+    // mouse events a phone emulates after every tap used to yank the tilt away from the gyroscope.
+    window.addEventListener('pointermove', e=>{
+      if(e.pointerType!=='mouse') return;
+      tx=(e.clientX/window.innerWidth - .5)*28;
+      ty=(e.clientY/window.innerHeight - .5)*28;
+      kick();
+    }, {passive:true});
+  })();
+
+  if(document.fonts && document.fonts.load){
+    document.fonts.load('400 32px "Instrument Serif"', 'farak©FATIN').catch(()=>{});
+    document.fonts.load('italic 400 32px "Instrument Serif"', 'FARAK').catch(()=>{});
+  }
+
+  /* ---- liquid tap feedback: a small water-drop ripple + squish on press, shared by
+     every tappable glass/pill surface, so the whole UI feels consistently "liquid" —
+     not just the one stripe-thickness button that originally had it. Purely additive
+     visual feedback; it never intercepts or changes what the real click handler does. */
+  (function(){
+    // #thickBtn already has its own dedicated splash()+ripple (different stripe-swell
+    // animation tied to its icon) — excluded here so it doesn't double up with this one.
+    const SELECTOR = '.pick, .round:not(#thickBtn), #dl, .acts button, .tab';
+    // .tab and #notnow already carry their own static scaleY() styling for optical
+    // sizing — squishing those with an absolute scale() would visibly cancel that
+    // stretch for the animation's duration. They still get the ripple, just not the squish.
+    const SQUISH_SELECTOR = '.round:not(#thickBtn), #dl, #promise';
+    const reduceMotion = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function waterTap(el, x, y){
+      if(reduceMotion()) return;
+      if(el.animate && el.matches(SQUISH_SELECTOR)){
+        el.animate([
+          {transform:'scale(1)'},
+          {transform:'scale(0.965)', offset:.35},
+          {transform:'scale(1.012)', offset:.68},
+          {transform:'scale(1)'}
+        ],{duration:520,easing:'cubic-bezier(.34,1.56,.64,1)'});
+      }
+      const rect = el.getBoundingClientRect();
+      const r = document.createElement('span');
+      r.className = 'waterRipple';
+      const size = Math.max(rect.width, rect.height) * 1.4;
+      r.style.width = r.style.height = size+'px';
+      r.style.left = ((x!=null ? x-rect.left : rect.width/2))+'px';
+      r.style.top = ((y!=null ? y-rect.top : rect.height/2))+'px';
+      el.appendChild(r);
+      r.animate([
+        {transform:'translate(-50%,-50%) scale(0)', opacity:.55},
+        {transform:'translate(-50%,-50%) scale(1)', opacity:0}
+      ],{duration:560,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>r.remove();
+    }
+    document.addEventListener('pointerdown', e=>{
+      const el = e.target.closest(SELECTOR);
+      if(!el || el.disabled) return;
+      waterTap(el, e.clientX, e.clientY);
+    }, {passive:true});
+  })();
+
+  /* ---- water bag: the source-panel glass buttons are bags of water; the cursor/finger presses a dent into them ----
+     Hover = a gentle press, pointer down = a deep press. Everything runs on springs: the dent slides after the
+     cursor like a finger through gel, and the whole bag flattens, leans toward the press, and wobbles
+     (overshoots into a little bulge) when you let go. Uses the individual scale/rotate/translate properties so it
+     never fights the buttons' own transform animations. */
+  (function(){
+    const SEL='.pick, .solid';
+    const reduce=()=>window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const S=new Map();            // button -> spring state
+    let raf=0, last=0, hovered=null, lx=0, ly=0, recheck=0;
+    const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+    const find=e=>{ const t=e.target; return t && t.closest ? t.closest(SEL) : null; };
+
+    function st(el){
+      let s=S.get(el);
+      if(!s){ s={x:0,y:0,tx:0,ty:0,vx:0,vy:0,d:0,dv:0,hover:false,press:false,w:1,h:1,placed:false}; S.set(el,s); }
+      return s;
+    }
+    function aim(el,e){
+      const s=st(el), r=el.getBoundingClientRect();
+      // layout size (not the squished on-screen box), so the deformation can never feed back into itself
+      s.w=Math.max(1,el.offsetWidth); s.h=Math.max(1,el.offsetHeight);
+      s.tx=clamp(e.clientX-(r.left+r.width/2)+s.w/2,-12,s.w+12);
+      s.ty=clamp(e.clientY-(r.top+r.height/2)+s.h/2,-12,s.h+12);
+      if(!s.placed){ s.x=s.tx; s.y=s.ty; s.placed=true; }   // dent appears right under the cursor, no slide-in from nowhere
+    }
+    function paint(el,s){
+      const d=s.d, u=clamp((s.x-s.w/2)/(s.w/2),-1,1);
+      el.style.setProperty('--mx',s.x.toFixed(1)+'px');
+      el.style.setProperty('--my',s.y.toFixed(1)+'px');
+      el.style.setProperty('--dp',Math.max(d,0).toFixed(3));
+      // sizes are in px, not %, so a wide button and a small one deform by the same amount
+      // (kept tiny on the sides so nothing gets clipped by the frosted sheet around it)
+      el.style.scale=(1+2.6*d/s.w).toFixed(4)+' '+(1-4.6*d/s.h).toFixed(4);   // flatter + a touch wider = volume kept
+      el.style.rotate=(u*d*(2/(s.w/2))*57.2958).toFixed(3)+'deg';               // leans toward the side being pressed
+      el.style.translate=(u*1.2*d).toFixed(2)+'px '+(1.4*d).toFixed(2)+'px';    // sinks with the press
+    }
+    function clear(el){
+      el.style.removeProperty('scale'); el.style.removeProperty('rotate'); el.style.removeProperty('translate');
+      el.style.removeProperty('--mx'); el.style.removeProperty('--my'); el.style.removeProperty('--dp');
+    }
+    function tick(t){
+      raf=0;                                   // cleared first: if anything below ever threw, the loop can still restart
+      let dt=(t-last)/1000; last=t;
+      if(!(dt>0)) dt=.016;                     // first frame / clock hiccup: never step backwards
+      dt=Math.min(dt,.032);                    // a background tab can't make the springs explode
+      let busy=false;
+      S.forEach((s,el)=>{
+        // a button that got disabled or removed mid-press (e.g. "Maximum photo number is 8") lets go at once
+        if(!el.isConnected || el.disabled){ s.hover=false; s.press=false; if(hovered===el) hovered=null; }
+        // dent position: soft, slightly lagging spring (water is thick)
+        s.vx+=((s.tx-s.x)*260 - s.vx*27)*dt; s.x+=s.vx*dt;
+        s.vy+=((s.ty-s.y)*260 - s.vy*27)*dt; s.y+=s.vy*dt;
+        // depth: underdamped on purpose — overshoots when pressed, bulges back out when released
+        const goal=s.press?1:(s.hover?.5:0);
+        s.dv+=((goal-s.d)*190 - s.dv*12)*dt; s.d+=s.dv*dt;
+        if(!s.hover && !s.press && Math.abs(s.d)<.004 && Math.abs(s.dv)<.03){ clear(el); S.delete(el); return; }
+        paint(el,s); busy=true;
+      });
+      if(busy) raf=requestAnimationFrame(tick);
+    }
+    function wake(){ if(!raf){ last=performance.now(); raf=requestAnimationFrame(tick); } }
+    function unhover(){ if(hovered){ const s=S.get(hovered); if(s) s.hover=false; hovered=null; wake(); } }
+    function letGo(all){
+      S.forEach(s=>{ s.press=false; if(all) s.hover=false; });
+      if(all) hovered=null;
+      wake();
+    }
+
+    document.addEventListener('pointermove', e=>{
+      lx=e.clientX; ly=e.clientY;
+      if(reduce()) return;
+      const el=find(e);
+      if(hovered && (hovered!==el || hovered.disabled)) unhover();
+      if(!el || el.disabled) return;
+      if(e.pointerType!=='mouse' && !e.buttons) return;     // touch/pen only react while actually pressing
+      hovered=el; const s=st(el); s.hover=true; aim(el,e); wake();
+    }, {passive:true});
+    document.addEventListener('pointerdown', e=>{
+      lx=e.clientX; ly=e.clientY;
+      if(reduce() || e.button>0) return;                    // ignore right/middle click
+      const el=find(e);
+      if(!el || el.disabled) return;
+      hovered=el; const s=st(el); s.hover=true; s.press=true; aim(el,e); wake();
+    }, {passive:true});
+    const release=e=>letGo(e.pointerType!=='mouse');       // mouse keeps hovering after release; finger/pen leaves
+    document.addEventListener('pointerup', release, {passive:true});
+    document.addEventListener('pointercancel', release, {passive:true});
+    document.documentElement.addEventListener('mouseleave', ()=>letGo(true));
+    // the page scrolled or re-laid-out under a still cursor (e.g. the preview opening): if the button is no
+    // longer under the pointer, let go of it instead of leaving a dent on something the cursor has left
+    function verify(){
+      recheck=0;
+      if(!hovered) return;
+      const t=document.elementFromPoint(lx,ly), el=t && t.closest ? t.closest(SEL) : null;
+      if(el!==hovered) unhover();
+    }
+    window.addEventListener('scroll',()=>{ if(hovered && !recheck) recheck=requestAnimationFrame(verify); },{passive:true,capture:true});
+    window.addEventListener('resize',()=>{ if(hovered && !recheck) recheck=requestAnimationFrame(verify); },{passive:true});
+    // alt-tab / dialog opened mid-press: the pointerup never arrives, so don't stay stuck pressed
+    window.addEventListener('blur', ()=>letGo(true));
+    document.addEventListener('visibilitychange', ()=>{ if(document.hidden) letGo(true); });
+  })();
+
+  const $ = id => document.getElementById(id);
+  const tabs=$('tabs'), pickVideo=$('pickVideo'), pickPhotos=$('pickPhotos'), photoWrap=$('photoWrap'),
+        fileInput=$('fileInput'), photoInput=$('photoInput'), thumbs=$('thumbs'), reorderHint=$('reorderHint'), srcVideo=$('src'),
+        trimCard=$('trim'), filmstrip=$('filmstrip'), filmOuter=$('filmOuter'), sel=$('sel'),
+        hL=$('hL'), hR=$('hR'), shadeL=$('shadeL'), shadeR=$('shadeR'), trimLen=$('trimLen'), trimMax=$('trimMax'),
+        settings=$('settings'), thickBtn=$('thickBtn'),
+        createBtn=$('createBtn'),
+        preview=$('preview'), stage=$('stage'), composite=$('composite'), overlay=$('overlay'),
+        scrub=$('scrub'), scrubHandle=$('scrubHandle'), playBtn=$('playBtn'), dl=$('dl'),
+        modal=$('modal'), veil=$('veil');
+
+  const MAX_TRIM=3.0, MIN_TRIM=0.3, MAX_PHOTOS=8, MIN_PHOTOS=1, VIDEO_FRAMES=8, WATERMARK='farak©\uFE0E FATIN'; // \uFE0E = text-presentation selector, forces a plain "©" glyph instead of the emoji-style circled one some fonts/OSes default to
+  const MAX_VIDEO_SECONDS=8; // videos longer than this are rejected on upload
+
+  let mode='video', W=0,H=0,N=8,UNIT=2,PERIOD=16, offset=0, playing=false, rafId=null, ready=false, loopMs=3000;
+  let duration=0, tStart=0, tEnd=MAX_TRIM, photoItems=[], photoSeq=0, lastFrames=null, thick=1;
+  // genEpoch: bumped by closePreview(); anything still generating for an older epoch (the user switched tab, replaced the clip, edited photos...) throws its result away instead of opening a stale preview.
+  // filmBusy/filmToken/zooming: filmstrip thumbnail work — Create waits for it, and a newer build cancels an older one. generating: Create is running (trim is locked meanwhile).
+  let genEpoch=0, generating=false, filmBusy=0, filmToken=0, zooming=false, videoSerial=0, videoUrl=null;
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  const CANCELLED={cancelled:true};
+  let viewStart=0, viewEnd=0; // the [start,end] window of the video currently mapped across the filmstrip's width — starts as the whole video, then auto-zooms in around the selection as trims get tighter, exactly like iOS's rubber-band trim zoom
+
+  /* ---- mode: Video | Photos, switchable by TAP or by SLIDING the pill like a seekbar ---- */
+  const tabBtns=[...tabs.querySelectorAll('.tab')];
+  let tabPos=0;                                   // 0 = Video … 1 = Photos (fractional mid-drag)
+  function paintTabs(p){ tabPos=p; tabs.style.setProperty('--p', p.toFixed(4)); }
+
+  const pillEl=tabs.querySelector('.pill');
+  // the pill settles like a water drop: it stretches along its travel, thins, then wobbles back to shape
+  function pillJelly(){
+    if(!pillEl.animate || reduceMotion()) return;
+    pillEl.animate([
+      {scale:'1.2 .88', offset:.32},
+      {scale:'.95 1.06', offset:.64},
+      {scale:'1.02 .99', offset:.84},
+      {scale:'1 1'}
+    ],{duration:680,easing:'cubic-bezier(.4,0,.2,1)'});
+  }
+  // the panel that appears slides in from the side the pill went to, out of a soft blur
+  function liquidIn(el,dir){
+    if(!el.animate || reduceMotion()) return;
+    el.animate([
+      {opacity:0,transform:'translateX('+(dir*26)+'px) scale(.97)',filter:'blur(8px)'},
+      {opacity:1,transform:'none',filter:'blur(0px)'}
+    ],{duration:560,easing:'cubic-bezier(.22,1,.36,1)'});
+  }
+
+  function applyMode(m){
+    const changed = m!==mode;
+    mode = m;
+    tabs.classList.toggle('video',  m==='video');
+    tabs.classList.toggle('photos', m==='photos');
+    tabBtns.forEach(b=>{ const on=b.dataset.m===m; b.setAttribute('aria-selected', on?'true':'false'); b.tabIndex=on?0:-1; });
+    paintTabs(m==='photos' ? 1 : 0);
+    if(!changed) return;                          // re-selecting the current tab must not wipe the preview
+    // '' (not 'block'): .pick is a flex box — forcing block made the label jump to the top-left
+    pickVideo.style.display = m==='video' ? '' : 'none';
+    photoWrap.style.display = m==='photos' ? 'block' : 'none';
+    trimCard.classList.toggle('open', m==='video' && duration>0);
+    settings.classList.toggle('open', m==='video' ? duration>0 : photoItems.length>=MIN_PHOTOS);
+    if(m!=='video') hideVideoError();
+    closePreview();
+    pillJelly();
+    liquidIn(m==='video' ? pickVideo : photoWrap, m==='photos' ? 1 : -1);
+  }
+
+  const TAB_DRAG_PX=5;                            // finger travel before a press turns from "tap" into "slide"
+  let tDrag=null, suppressTabClick=false;
+  tabs.addEventListener('pointerdown', e=>{
+    if(tDrag) return;
+    if(e.pointerType==='mouse' && e.button!==0) return;
+    tDrag={id:e.pointerId, x0:e.clientX, p0:tabPos, active:false, lastX:e.clientX, lastT:e.timeStamp, v:0};
+  });
+  tabs.addEventListener('pointermove', e=>{
+    if(!tDrag || e.pointerId!==tDrag.id) return;
+    const dx=e.clientX-tDrag.x0;
+    if(!tDrag.active){
+      if(Math.abs(dx)<TAB_DRAG_PX) return;        // still a tap
+      tDrag.active=true;
+      tabs.classList.add('dragging');
+      try{ tabs.setPointerCapture(e.pointerId); }catch(_){}
+    }
+    const half=(tabs.clientWidth/2)||1;           // the pill is exactly half the track wide
+    const p=Math.max(0,Math.min(1, tDrag.p0 + dx/half));
+    const dt=e.timeStamp-tDrag.lastT;
+    if(dt>0) tDrag.v = tDrag.v*.6 + ((e.clientX-tDrag.lastX)/dt)*.4;   // smoothed px/ms, for flicks
+    tDrag.lastX=e.clientX; tDrag.lastT=e.timeStamp;
+    paintTabs(p);
+    tabs.style.setProperty('--st', Math.min(.16, Math.abs(tDrag.v)*.1).toFixed(3));   // stretch with speed …
+    clearTimeout(tDrag.calm); tDrag.calm=setTimeout(()=>tabs.style.setProperty('--st','0'),90);   // … and relax when the finger pauses
+    tabs.classList.toggle('photos', p>=.5);       // label colours flip as the pill crosses the middle
+    tabs.classList.toggle('video',  p<.5);
+  });
+  function endTabDrag(e,cancelled){
+    if(!tDrag || e.pointerId!==tDrag.id) return;
+    const d=tDrag; tDrag=null;
+    if(!d.active) return;                         // plain tap — the button's own click handler takes it from here
+    tabs.classList.remove('dragging');
+    try{ tabs.releasePointerCapture(e.pointerId); }catch(_){}
+    suppressTabClick=true; setTimeout(()=>{ suppressTabClick=false; },60);   // the click that trails a drag must not re-select
+    let target = tabPos>=.5 ? 'photos' : 'video';                            // nearest side …
+    if(!cancelled && Math.abs(d.v)>.35) target = d.v>0 ? 'photos' : 'video'; // … unless it was a flick
+    if(cancelled) target = mode;
+    clearTimeout(d.calm); tabs.style.setProperty('--st','0');
+    const before=mode;
+    applyMode(target);
+    if(mode===before) pillJelly();                // snapped back to the same side: still wobble into place
+  }
+  tabs.addEventListener('pointerup',     e=>endTabDrag(e,false));
+  tabs.addEventListener('pointercancel', e=>endTabDrag(e,true));
+  tabs.addEventListener('click', e=>{
+    if(suppressTabClick) return;
+    const b=e.target.closest('.tab'); if(!b) return;
+    applyMode(b.dataset.m);
+  });
+  tabs.addEventListener('keydown', e=>{
+    if(e.key!=='ArrowLeft' && e.key!=='ArrowRight') return;
+    e.preventDefault();
+    applyMode(e.key==='ArrowRight' ? 'photos' : 'video');
+    const cur=tabBtns.find(b=>b.dataset.m===mode); if(cur) cur.focus();
+  });
+  paintTabs(0);
+
+  function closePreview(){ genEpoch++; preview.classList.remove('open'); ready=false; stopPlay(); }
+
+  /* ---- video input ---- */
+  pickVideo.addEventListener('click', ()=>{ fileInput.value=''; fileInput.click(); });
+  ['dragover','dragenter'].forEach(ev=>pickVideo.addEventListener(ev,e=>{e.preventDefault();pickVideo.classList.add('drag');}));
+  ['dragleave','drop'].forEach(ev=>pickVideo.addEventListener(ev,e=>{e.preventDefault();pickVideo.classList.remove('drag');}));
+  pickVideo.addEventListener('drop', e=>{ const f=e.dataTransfer.files[0]; if(f) loadVideo(f); });
+  // a file dropped anywhere else must never navigate the page away to the raw file
+  ['dragover','drop'].forEach(ev=>window.addEventListener(ev,e=>{
+    if(e.dataTransfer && Array.from(e.dataTransfer.types||[]).includes('Files')) e.preventDefault();
+  }));
+  fileInput.addEventListener('change', e=>{ const f=e.target.files[0]; if(f) loadVideo(f); });
+
+  const CANT_READ="Couldn't read this video. Try another one.";
+  function loadVideo(f){
+    if(!f) return;
+    if(f.type && !/^video\//.test(f.type)){ showVideoError('Please choose a video file.'); return; }
+    const probe=document.createElement('video');
+    const url=URL.createObjectURL(f);
+    let done=false;
+    const finish=()=>{ done=true; URL.revokeObjectURL(url); probe.removeAttribute('src'); try{probe.load();}catch(_){} };
+    probe.preload='metadata'; probe.muted=true;
+    probe.onloadedmetadata=()=>{
+      if(done) return;
+      const dur=probe.duration;
+      finish();
+      if(!Number.isFinite(dur) || dur<=0){ showVideoError(CANT_READ); return; }
+      if(dur>MAX_VIDEO_SECONDS+0.5){
+        showVideoError('Maximum video length is '+MAX_VIDEO_SECONDS+' seconds.');
+        return;
+      }
+      hideVideoError();
+      startVideo(f);
+    };
+    probe.onerror=()=>{ if(done) return; finish(); showVideoError(CANT_READ); };   // unsupported/corrupt file used to fail silently
+    probe.src=url;
+  }
+
+  function showVideoError(msg){
+    let el=$('videoErr');
+    if(!el){
+      el=document.createElement('div'); el.id='videoErr';
+      el.style.cssText='margin-top:10px;padding:9px 12px;border-radius:var(--r-sm);background:rgba(255,90,90,.14);border:1px solid rgba(255,90,90,.4);color:#ffb3b3;font:400 .92rem var(--serif);';
+      pickVideo.insertAdjacentElement('afterend', el);
+    }
+    el.textContent=msg;
+  }
+  function hideVideoError(){ const el=$('videoErr'); if(el) el.remove(); }
+
+  function startVideo(f){
+    videoSerial++; filmToken++;          // cancels any thumbnail work still running on the previous clip
+    duration = 0;                        // trim/Create stay locked until THIS clip's metadata is in
+    if(videoUrl) URL.revokeObjectURL(videoUrl);
+    videoUrl = URL.createObjectURL(f);
+    srcVideo.onerror = () => {
+      duration = 0; closePreview();
+      trimCard.classList.remove('open'); settings.classList.remove('open');
+      pickVideo.textContent = 'Choose a video';
+      showVideoError(CANT_READ);
+    };
+    srcVideo.onloadedmetadata = async () => {
+      const d = srcVideo.duration;
+      if(!Number.isFinite(d) || d<=0){ srcVideo.onerror(); return; }
+      duration = d;
+      tStart = 0; tEnd = Math.min(MAX_TRIM, duration);
+      viewStart = 0; viewEnd = duration;
+      trimMax.textContent = ' / ' + Math.min(MAX_TRIM, duration).toFixed(1) + 's';
+      pickVideo.textContent = 'Replace';
+      trimCard.classList.add('open');
+      settings.classList.add('open');
+      closePreview();
+      await buildFilmstrip();
+      sel.classList.add('live');
+      layoutTrim();
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        sel.classList.remove('live');
+      }));
+    };
+    srcVideo.src = videoUrl;
+  }
+
+  /* ---- photo input ---- */
+  pickPhotos.addEventListener('click', ()=>{
+    if(photoItems.length>=MAX_PHOTOS) return;
+    photoInput.value=''; photoInput.click();
+  });
+  photoInput.addEventListener('change', e=>{
+    const picked = Array.from(e.target.files||[]);
+    for(const f of picked){
+      if(photoItems.length>=MAX_PHOTOS) break;
+      photoItems.push({id:'p'+(photoSeq++), file:f, url:URL.createObjectURL(f)});
+    }
+    renderThumbs();
+    updatePhotoState();
+  });
+
+  let selectedId=null;
+  function renderThumbs(){
+    thumbs.innerHTML='';
+    photoItems.forEach((item,i)=>{
+      const wrap=document.createElement('div');
+      // only a photo's FIRST appearance animates in — re-renders (swap/remove) used to make every thumbnail blink back in
+      wrap.className='thumb'+(item.id===selectedId?' selected':'')+(item.seen?' seen':'');
+      item.seen=true;
+      wrap.dataset.id=item.id;
+      wrap.style.animationDelay=(i*0.04)+'s';
+      const im=new Image(); im.src=item.url; im.alt='Frame '+(i+1); im.draggable=false;
+      const rm=document.createElement('button'); rm.type='button'; rm.className='rm';
+      rm.setAttribute('aria-label','Remove photo '+(i+1)); rm.textContent='×';
+      rm.addEventListener('click', ev=>{
+        ev.stopPropagation();
+        const idx=photoItems.findIndex(it=>it.id===item.id);
+        if(idx>-1){ URL.revokeObjectURL(photoItems[idx].url); photoItems.splice(idx,1); }
+        if(selectedId===item.id) selectedId=null;
+        renderThumbs(); updatePhotoState();
+      });
+      wrap.appendChild(im); wrap.appendChild(rm);
+      attachThumbTap(wrap,item);
+      thumbs.appendChild(wrap);
+    });
+  }
+
+  /* Reordering is tap-to-swap, not drag: tap a photo to pick it up (it gets a bright ring),
+     then tap a second photo to swap the two. Tapping the same photo again cancels the pick.
+     No pointer capture, no touch-action tuning, no drag thresholds — just clicks, so it works
+     identically on mouse, trackpad and touch. */
+  function paintSelection(){ thumbs.querySelectorAll('.thumb').forEach(el=>el.classList.toggle('selected', el.dataset.id===selectedId)); }
+  function attachThumbTap(wrap,item){
+    wrap.addEventListener('click', e=>{
+      if(e.target.closest('.rm')) return;
+      if(!selectedId){
+        selectedId=item.id; paintSelection();             // classes only — the lift/spring plays instead of the grid rebuilding
+      } else if(selectedId===item.id){
+        selectedId=null; paintSelection();
+      } else {
+        const a=photoItems.findIndex(it=>it.id===selectedId);
+        const b=photoItems.findIndex(it=>it.id===item.id);
+        if(a>-1 && b>-1){ [photoItems[a],photoItems[b]]=[photoItems[b],photoItems[a]]; }
+        selectedId=null;
+        renderThumbs();
+        closePreview();                                   // the order changed, so an already-built preview is stale
+      }
+    });
+  }
+
+  function updatePhotoState(){
+    if(!photoItems.length){ pickPhotos.textContent='Choose 1–8 photos'; pickPhotos.disabled=false; }
+    else if(photoItems.length>=MAX_PHOTOS){ pickPhotos.textContent='Maximum photo number is 8'; pickPhotos.disabled=true; }
+    else { pickPhotos.textContent='Add more photos'; pickPhotos.disabled=false; }
+    reorderHint.style.display = photoItems.length>=2 ? 'block' : 'none';
+    settings.classList.toggle('open', photoItems.length>=MIN_PHOTOS);
+    closePreview();
+  }
+
+  /* ---- filmstrip / trim ---- */
+  // Resolves when the seek lands. Two ways the old version could hang forever (freezing the
+  // filmstrip at 40% opacity and Create on "3 / 8"): seeking to the time the video is already
+  // at (some browsers never fire 'seeked'), and the clip being swapped out mid-seek. Both are
+  // now covered — an already-there check up front, and a timeout as the last resort.
+  function seekTo(video,t){
+    return new Promise(res=>{
+      if(Math.abs(video.currentTime-t)<0.0005 && video.readyState>=2 && !video.seeking){ res(); return; }
+      let settled=false, timer=null;
+      const finish=()=>{ if(settled) return; settled=true; clearTimeout(timer); video.removeEventListener('seeked',finish); res(); };
+      video.addEventListener('seeked',finish);
+      timer=setTimeout(finish,3000);
+      try{ video.currentTime=t; }catch(_){ finish(); }
+    });
+  }
+
+  async function buildFilmstrip(){
+    const token=++filmToken; filmBusy++;      // a newer build (or a newly picked clip) bumps filmToken and this one quietly stops
+    try{
+      // wait for layout to settle (the section is still animating open) so we measure the real final width
+      await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+      if(token!==filmToken) return;
+      // ch matches the CSS height of #filmstrip (68px) — it used to be 64, which stretched every thumbnail ~6% taller
+      const cw = Math.max(240, Math.round(filmOuter.getBoundingClientRect().width)), ch = 68;
+      filmstrip.width=cw; filmstrip.height=ch;
+      const ctx = filmstrip.getContext('2d');
+      ctx.clearRect(0,0,cw,ch);
+      const cells=12, cellW=cw/cells, vw=srcVideo.videoWidth||1, vh=srcVideo.videoHeight||1;
+      const cropAR=cellW/ch, srcAR=vw/vh; let sx,sy,sw,sh;
+      if(srcAR>cropAR){ sh=vh; sw=vh*cropAR; sy=0; sx=(vw-sw)/2; } else { sw=vw; sh=vw/cropAR; sx=0; sy=(vh-sh)/2; }
+      let prevX=0;
+      const vs=viewStart, ve=viewEnd, dur=duration;
+      for(let i=0;i<cells;i++){
+        const t = Math.max(0, Math.min(dur-0.01, vs + (ve-vs)*((i+0.5)/cells)));
+        await seekTo(srcVideo, t);
+        if(token!==filmToken) return;
+        // snap each cell to integer pixel edges so neighbouring frames never overlap or leave gaps
+        const dx=prevX, nextX=Math.round((i+1)*cellW), dw=nextX-dx;
+        ctx.drawImage(srcVideo, sx,sy,sw,sh, dx,0,dw,ch);
+        prevX=nextX;
+      }
+    } finally { filmBusy--; }
+  }
+
+  const HANDLE_W=24, GAP_MIN=28; // handle's own width, plus the smallest real peek gap we ever allow between the two handles
+  const MIN_SEL_PX = 2*HANDLE_W + GAP_MIN; // pixel floor for a selection's width
+  let dynMinTrim = MIN_TRIM;
+  // dynMinTrim converts MIN_SEL_PX into seconds using the CURRENT VIEW WINDOW's
+  // pixel-per-second density (not the whole video's), so tStart/tEnd can never produce
+  // a selection narrower than MIN_SEL_PX on screen. Handles sit flush inside the true
+  // edges — never wider, never overlapping — so a real gap of footage is always visible.
+  // Critically, the view window itself auto-zooms in around the selection as trims get
+  // tighter (see rezoomToSelection), so this floor stays tiny and reachable down to
+  // MIN_TRIM regardless of how long the source video is — exactly like iOS's rubber-band
+  // trim zoom, just implemented as a re-render on release rather than continuously (this
+  // renderer draws thumbnails via real <video> seeks, which are too slow to redo on every
+  // pointermove — so we zoom once, when you let go, then let you drag again from there).
+  function updateDynMinTrim(){
+    const cw = filmOuter.getBoundingClientRect().width, viewSpan = viewEnd-viewStart;
+    dynMinTrim = (viewSpan && cw) ? Math.max(MIN_TRIM, (MIN_SEL_PX/cw)*viewSpan) : MIN_TRIM;
+  }
+  function layoutTrim(){
+    if(!duration) return;
+    updateDynMinTrim();
+    const cw = filmOuter.getBoundingClientRect().width, viewSpan = viewEnd-viewStart;
+    // True edges from tStart/tEnd, mapped through the current view window — sel/shadeL/
+    // shadeR (what's dimmed vs. lit up on the filmstrip) ALWAYS use these exact values —
+    // the highlighted footage must always match the real trim, never wider, or it
+    // misleadingly shows more of the clip as "selected" than what's actually kept.
+    // l/r are left UNCLAMPED here — they should keep tracking the pointer naturally
+    // even past the current view window's mapped edge (the view only re-centers on
+    // release). Rather than freezing the handle at a fake stop, #filmOuter itself now
+    // clips (see its CSS: overflow:hidden + matching radius) anything that goes past
+    // the strip's true rounded silhouette, so it looks like it slides smoothly in
+    // behind the edge instead of either popping out past the border or getting stuck.
+    const l=((tStart-viewStart)/viewSpan)*cw, r=((tEnd-viewStart)/viewSpan)*cw;
+    sel.style.left=l+'px'; sel.style.width=(r-l)+'px';
+    shadeL.style.left='0px'; shadeL.style.width=Math.max(0,l)+'px';
+    shadeR.style.left=r+'px'; shadeR.style.width=Math.max(0,cw-r)+'px';
+    // Handles sit flush INSIDE the true span, flush with each edge — never wider than
+    // the selection itself. dynMinTrim guarantees r-l is always >= MIN_SEL_PX in pixels,
+    // so there's always a real, unobstructed gap of true footage visible between them.
+    hL.style.left=l+'px'; hL.style.width=HANDLE_W+'px';
+    hR.style.left=(r-HANDLE_W)+'px'; hR.style.width=HANDLE_W+'px';
+    trimLen.textContent=(tEnd-tStart).toFixed(1)+'s';
+  }
+  window.addEventListener('resize', layoutTrim);
+
+  // After every drag ends, re-center the view window on the selection and zoom so the
+  // selection fills roughly TARGET_FILL of the visible strip. Only actually redraws the
+  // (expensive, seek-based) thumbnails when the ideal window differs meaningfully from
+  // the current one, so small nudges near an already-good zoom level don't cause jitter.
+  const TARGET_FILL=0.45, MIN_VIEW_SPAN=1.0;
+  async function rezoomToSelection(){
+    if(!duration || zooming || generating) return;
+    const selSpan = tEnd-tStart, curSpan = viewEnd-viewStart;
+    const maxSpan = Math.min(MAX_TRIM,duration);
+    let vs, ve;
+    if(selSpan >= maxSpan-0.01){
+      // Selection is at its max length — this is exactly the state the trim starts
+      // in, so snap the view back to the full base plate [0,duration] instead of the
+      // TARGET_FILL formula (which would otherwise still show a partially-zoomed
+      // window whenever the video is longer than maxSpan/TARGET_FILL). This way maxing
+      // out the trim always returns to the original start/end, no manual sliding needed.
+      vs=0; ve=duration;
+    } else {
+      let span = Math.min(duration, Math.max(MIN_VIEW_SPAN, selSpan/TARGET_FILL));
+      const mid=(tStart+tEnd)/2;
+      vs=mid-span/2; ve=vs+span;
+      if(vs<0){ ve-=vs; vs=0; }
+      if(ve>duration){ vs-=(ve-duration); ve=duration; }
+      vs=Math.max(0,vs); ve=Math.min(duration,ve);
+    }
+    const span = ve-vs;
+    // Rezoom when EITHER the ideal span changed a lot (resize) OR the selection has
+    // drifted near/past the edge of the current view window (move). A pure move-drag
+    // keeps span the same, so the old span-only check always skipped it — meaning the
+    // view window never re-centered, and dragging a small zoomed-in selection across
+    // the timeline could walk it right off the edge of the visible filmstrip, making
+    // the border/handles clip and disappear into the card's edge instead of staying
+    // visible and in view.
+    const spanChanged = Math.abs(span-curSpan) > curSpan*0.3+0.05;
+    const margin = 0.02*curSpan;
+    const outOfView = tStart < viewStart+margin || tEnd > viewEnd-margin;
+    if(!spanChanged && !outOfView) return; // comfortably fits current view — skip the redraw
+    zooming=true; filmstrip.style.opacity='.4';
+    viewStart=vs; viewEnd=ve;
+    try{ await buildFilmstrip(); }
+    finally{ filmstrip.style.opacity='1'; zooming=false; }
+    layoutTrim();
+  }
+
+  let drag=null, dragX=0, dragV=0, dragPointer=null, badgeHideTimer=null;
+  function startDrag(kind,e){
+    e.stopPropagation();
+    // locked while thumbnails are being redrawn or a Create run is reading the trim: moving the
+    // handles then made the view jump under the finger / captured frames from a shifting range
+    if(drag || zooming || generating || !(duration>0)) return;
+    if(e.pointerType==='mouse' && e.button!==0) return;
+    drag=kind; dragPointer=e.pointerId; dragX=e.clientX; dragV = kind==='R'?tEnd:tStart;
+    // capture: a mouse released outside the window (or a finger sliding off the strip) still ends the drag
+    try{ e.currentTarget.setPointerCapture(e.pointerId); }catch(_){}
+    clearTimeout(badgeHideTimer);
+    sel.classList.add('live'); hL.classList.add('live'); hR.classList.add('live'); filmOuter.classList.add('touching'); }
+  hL.addEventListener('pointerdown', e=>startDrag('L',e));
+  hR.addEventListener('pointerdown', e=>startDrag('R',e));
+  sel.addEventListener('pointerdown', e=>startDrag('move',e));
+
+  document.addEventListener('pointermove', e=>{
+    if(!drag || !duration || e.pointerId!==dragPointer) return;
+    const cw = filmOuter.getBoundingClientRect().width, viewSpan = viewEnd-viewStart;
+    const dt = ((e.clientX-dragX)/cw)*viewSpan, maxSpan=Math.min(MAX_TRIM,duration);
+    // the hard bounds (0 and duration) are applied LAST so no other rule can push a handle past the clip
+    if(drag==='L'){ let nl=dragV+dt; nl=Math.min(nl,tEnd-dynMinTrim); nl=Math.max(nl,tEnd-maxSpan); nl=Math.max(0,nl); tStart=nl; }
+    else if(drag==='R'){ let nr=dragV+dt; nr=Math.max(nr,tStart+dynMinTrim); nr=Math.min(nr,tStart+maxSpan); nr=Math.min(duration,nr); tEnd=nr; }
+    else { const span=tEnd-tStart; let ns=Math.max(0,Math.min(dragV+dt, duration-span)); tStart=ns; tEnd=ns+span; }
+    layoutTrim();
+  });
+  ['pointerup','pointercancel'].forEach(ev=>document.addEventListener(ev,e=>{
+    if(!drag || e.pointerId!==dragPointer){ return; }
+    drag=null; dragPointer=null; sel.classList.remove('live'); hL.classList.remove('live'); hR.classList.remove('live');
+    clearTimeout(badgeHideTimer); badgeHideTimer=setTimeout(()=>filmOuter.classList.remove('touching'), 3000);
+    rezoomToSelection();
+  }));
+
+  /* ---- settings ---- */
+  // Thickness lives on the preview as a single tap-to-cycle button and updates the result live:
+  // the frames are kept in memory, so a change only re-interlaces them at the new stripe width —
+  // no re-extraction.
+  const thickIcon=thickBtn.firstElementChild;
+  const reduceMotion=()=>window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function paintThick(){
+    thickIcon.style.setProperty('--w', thick);        // stripes in the icon swell/shrink (CSS-animated)
+    thickBtn.setAttribute('aria-label','Stripe thickness '+thick+' of 6. Tap to change');
+  }
+  async function setThick(v){
+    v=Math.min(6,Math.max(1,v));
+    if(v===thick) return;
+    thick=v; paintThick();
+    if(!ready || !lastFrames) return;
+    const phase=offset/PERIOD;          // keep the same slide position across the change
+    UNIT=thick; PERIOD=N*UNIT;
+    offset=phase*PERIOD;                // rescaled synchronously, so rapid taps can't drift
+    await buildComposite(lastFrames); buildOverlay();
+    applyOffset();
+  }
+  // water feel on tap: the button squishes like a drop and a ripple spreads out inside it
+  function splash(){
+    if(!thickBtn.animate || reduceMotion()) return;
+    thickBtn.animate([
+      {scale:'1 1'},
+      {scale:'1.2 .85', offset:.3},
+      {scale:'.95 1.06', offset:.62},
+      {scale:'1.02 .99', offset:.82},
+      {scale:'1 1'}
+    ],{duration:620,easing:'cubic-bezier(.4,0,.2,1)'});
+    const r=document.createElement('span'); r.className='ripple'; thickBtn.appendChild(r);
+    r.animate([{transform:'scale(.15)',opacity:.9},{transform:'scale(1.25)',opacity:0}],
+      {duration:650,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>r.remove();
+  }
+  thickBtn.addEventListener('click', ()=>{ setThick(thick%6+1); splash(); });
+  paintThick();
+
+  /* ---- generation ---- */
+  // fromVideo/fromPhotos are pure: they return {frames,w,h,loop} and never touch the shared
+  // W/H/N/PERIOD globals. Those are committed in ONE place (the Create handler), so a run that
+  // fails or gets cancelled can't leave a half-updated state behind an already-open preview.
+  async function fromVideo(epoch){
+    const t0=tStart, span=Math.max(0.1,tEnd-tStart), dur=duration;     // snapshot — the trim is locked during a run anyway
+    const vw=srcVideo.videoWidth||1, vh=srcVideo.videoHeight||1;
+    const scale=Math.min(1,480/vw);
+    const w=Math.max(1,Math.round(vw*scale)), h=Math.max(1,Math.round(vh*scale));
+    const off=document.createElement('canvas'); off.width=w; off.height=h;
+    const octx=off.getContext('2d',{willReadFrequently:true});
+    const frames=[];
+    for(let i=0;i<VIDEO_FRAMES;i++){
+      await seekTo(srcVideo, Math.min(t0+span*((i+0.5)/VIDEO_FRAMES), dur-0.01));
+      if(epoch!==genEpoch) throw CANCELLED;
+      octx.drawImage(srcVideo,0,0,w,h);
+      frames.push(octx.getImageData(0,0,w,h));
+      createBtn.firstChild.nodeValue = (i+1)+' / '+VIDEO_FRAMES;
+      createBtn.style.setProperty('--prog', ((i+1)/VIDEO_FRAMES).toFixed(3));
+      await sleep(0);
+    }
+    return {frames,w,h,loop:span*1000};
+  }
+
+  // each object URL is revoked once the run is over (they used to leak for the life of the tab)
+  function loadImage(file){ return new Promise((res,rej)=>{ const url=URL.createObjectURL(file); const im=new Image();
+    im.onload=()=>{ im._url=url; res(im); }; im.onerror=()=>{ URL.revokeObjectURL(url); rej(new Error('image')); }; im.src=url; }); }
+
+  async function fromPhotos(epoch){
+    const files=photoItems.map(it=>it.file);
+    const imgs=[];
+    try{
+      for(const f of files){ imgs.push(await loadImage(f)); if(epoch!==genEpoch) throw CANCELLED; }
+      const first=imgs[0], scale=Math.min(1,480/(first.naturalWidth||480));
+      const w=Math.max(1,Math.round(first.naturalWidth*scale)), h=Math.max(1,Math.round(first.naturalHeight*scale));
+      const off=document.createElement('canvas'); off.width=w; off.height=h;
+      const octx=off.getContext('2d',{willReadFrequently:true});
+      const frames=[];
+      for(let i=0;i<imgs.length;i++){
+        const img=imgs[i], srcAR=img.naturalWidth/img.naturalHeight, dstAR=w/h; let sx,sy,sw,sh;
+        if(srcAR>dstAR){ sh=img.naturalHeight; sw=sh*dstAR; sy=0; sx=(img.naturalWidth-sw)/2; }
+        else { sw=img.naturalWidth; sh=sw/dstAR; sx=0; sy=(img.naturalHeight-sh)/2; }
+        octx.clearRect(0,0,w,h);
+        octx.drawImage(img,sx,sy,sw,sh,0,0,w,h);
+        frames.push(octx.getImageData(0,0,w,h));
+        createBtn.firstChild.nodeValue = (i+1)+' / '+imgs.length;
+        createBtn.style.setProperty('--prog', ((i+1)/imgs.length).toFixed(3));
+        await sleep(0);
+        if(epoch!==genEpoch) throw CANCELLED;
+      }
+      // A single photo has nothing to interlace against — duplicate it so the fringe/paper
+      // overlay still has real stripes to glide across (rather than collapsing to one solid
+      // transparent band that does nothing), while every stripe shows the same picture.
+      if(frames.length===1) frames.push(frames[0]);
+      return {frames,w,h,loop:MAX_TRIM*1000};
+    } finally { imgs.forEach(im=>{ if(im._url) URL.revokeObjectURL(im._url); }); }
+  }
+
+  createBtn.addEventListener('click', async () => {
+    if(generating) return;
+    if(mode==='video' && !(duration>0)) return;
+    if(mode==='photos' && photoItems.length<MIN_PHOTOS) return;
+    generating=true; createBtn.disabled=true; stopPlay();
+    const epoch=genEpoch;
+    const busy=document.createElement('span'); busy.className='busy fringe'; createBtn.appendChild(busy);
+    const reset=label=>{
+      busy.remove(); createBtn.firstChild.nodeValue=label||'Create'; createBtn.disabled=false; generating=false;
+      createBtn.classList.add('flush');          // liquid drains away instead of sliding back
+      setTimeout(()=>{ if(!generating){ createBtn.style.setProperty('--prog','0'); createBtn.classList.remove('flush'); } },450);
+    };
+    let res;
+    try{
+      if(mode==='video'){
+        // the filmstrip redraw and Create both seek the SAME hidden <video>; run together they
+        // steal each other's 'seeked' events and grab wrong frames — so Create waits its turn
+        while((filmBusy||zooming) && epoch===genEpoch) await sleep(40);
+        if(epoch!==genEpoch) throw CANCELLED;
+        res = await fromVideo(epoch);
+      } else res = await fromPhotos(epoch);
+      try{ await document.fonts.ready; }catch(_){}
+      if(epoch!==genEpoch) throw CANCELLED;      // tab switched / clip replaced / photos edited while we worked
+    }
+    catch(err){
+      if(err===CANCELLED){ reset(); return; }
+      reset('Try another file');
+      setTimeout(()=>{ if(!generating && createBtn.firstChild.nodeValue==='Try another file') createBtn.firstChild.nodeValue='Create'; },2500);
+      return;
+    }
+    // ---- commit (all synchronous from here, so nothing can interleave) ----
+    ready=false;
+    lastFrames=res.frames; W=res.w; H=res.h; N=res.frames.length; loopMs=res.loop;
+    UNIT=thick; PERIOD=N*UNIT;
+    await buildComposite(lastFrames); buildOverlay();
+    reset();
+    preview.classList.add('open');
+    ready=true; offset=0; applyOffset();
+    // one-off entrance only (the frame itself stays static afterwards): it drops in on a spring
+    const pg=$('previewGlass');
+    if(pg.animate && !reduceMotion()) pg.animate([
+      {opacity:0,transform:'translateY(28px) scale(.96)'},
+      {opacity:1,transform:'none'}
+    ],{duration:760,easing:'cubic-bezier(.34,1.56,.64,1)'});
+    requestAnimationFrame(()=>stage.scrollIntoView({behavior:'smooth',block:'center'}));
+  });
+
+  async function buildComposite(frames){
+    await document.fonts.ready;
+    composite.width=W; composite.height=H;
+    const ctx=composite.getContext('2d');
+    const out=ctx.createImageData(W,H), o=out.data;
+    for(let x=0;x<W;x++){
+      const s=frames[Math.floor(x/UNIT)%N].data;
+      for(let y=0;y<H;y++){ const di=(y*W+x)*4; o[di]=s[di]; o[di+1]=s[di+1]; o[di+2]=s[di+2]; o[di+3]=255; }
+    }
+    ctx.putImageData(out,0,0);
+    drawWatermark(ctx);
+  }
+
+  function drawWatermark(ctx){
+    // draw on a supersampled offscreen canvas then scale down with smoothing —
+    // at 1x, tiny serif text just aliases into blocky pixels indistinguishable from any font.
+    const S=4, pad=Math.max(4,Math.round(H*0.012)), fontPx=Math.max(12,Math.round(H*0.042));
+    const wc=document.createElement('canvas'); wc.width=W*S; wc.height=H*S;
+    const wctx=wc.getContext('2d');
+    wctx.font='400 '+(fontPx*S)+'px "Instrument Serif", Georgia, serif';
+    wctx.textAlign='right'; wctx.textBaseline='bottom';
+    wctx.fillStyle='rgba(0,0,0,0.55)'; wctx.fillText(WATERMARK, (W-pad)*S, (H-pad+1)*S);
+    wctx.fillStyle='rgba(255,255,255,0.82)'; wctx.fillText(WATERMARK, (W-pad-1)*S, (H-pad)*S);
+    ctx.save();
+    ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
+    ctx.drawImage(wc,0,0,wc.width,wc.height,0,0,W,H);
+    ctx.restore();
+  }
+
+  function buildOverlay(){
+    const ow=W+PERIOD;
+    overlay.width=ow; overlay.height=H;
+    const ctx=overlay.getContext('2d');
+    ctx.clearRect(0,0,ow,H);
+    ctx.fillStyle='#000'; ctx.fillRect(0,0,ow,H);
+    ctx.save(); ctx.globalCompositeOperation='destination-out'; ctx.fillStyle='#fff';
+    for(let x=0;x<ow;x+=PERIOD) ctx.fillRect(x,0,UNIT,H);
+    ctx.restore();
+    stage.style.aspectRatio=(W/H).toFixed(4);
+    overlay.style.width=(ow/W*100)+'%';
+  }
+
+  function applyOffset(){
+    if(!ready) return;
+    const m=((offset%PERIOD)+PERIOD)%PERIOD;
+    overlay.style.left = -((m/W)*100)+'%';
+    const track=scrub.clientWidth, hw=scrubHandle.offsetWidth;
+    const px=(m/PERIOD)*Math.max(0,track-hw);
+    scrubHandle.style.left = px+'px';
+  }
+
+  /* ---- drag on stage ---- */
+  let sDrag=false, sX=0, sO=0, sId=null;
+  stage.addEventListener('pointerdown', e=>{
+    if(!ready || sDrag) return;
+    if(e.pointerType==='mouse' && e.button!==0) return;
+    sDrag=true; sId=e.pointerId; sX=e.clientX; sO=offset;
+    try{ stage.setPointerCapture(e.pointerId); }catch(_){}
+    stopPlay();
+  });
+  stage.addEventListener('pointermove', e=>{
+    if(!sDrag || e.pointerId!==sId) return;
+    const rect=stage.getBoundingClientRect();
+    offset = sO - (e.clientX - sX)*(W/rect.width);
+    applyOffset();
+  });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>stage.addEventListener(ev,e=>{ if(e.pointerId===sId) sDrag=false; }));
+
+  /* ---- scrubber ---- */
+  let scrubbing=false, scrubId=null;
+  function scrubTo(clientX){
+    // Map the finger to the handle's CENTRE (not the raw track fraction) — applyOffset() slides the
+    // handle across track-minus-its-own-width, so the old mapping let the handle drift up to half a
+    // handle away from the finger. Capped just under 1 so the far end doesn't wrap the handle back to 0.
+    const rect=scrub.getBoundingClientRect(), hw=scrubHandle.offsetWidth;
+    const span=Math.max(1, scrub.clientWidth-hw);
+    const f=Math.min(1,Math.max(0,(clientX-rect.left-scrub.clientLeft-hw/2)/span));
+    offset = Math.min(f,0.9999)*PERIOD;
+    applyOffset();
+    // liquid: the handle elongates with finger speed (its scale springs, so it trails and settles)
+    const now=performance.now();
+    if(scrubLastX!=null && !reduceMotion()){
+      const v=Math.min(.22, Math.abs(clientX-scrubLastX)/Math.max(8,now-scrubLastT)*.1);
+      scrubHandle.style.scale=(1.14+v).toFixed(3)+' '+(.96-v*.5).toFixed(3);
+      clearTimeout(scrubSettle); scrubSettle=setTimeout(()=>{ scrubHandle.style.scale=''; },110);
+    }
+    scrubLastX=clientX; scrubLastT=now;
+  }
+  let scrubLastX=null, scrubLastT=0, scrubSettle=null;
+  scrub.addEventListener('pointerdown', e=>{
+    if(!ready || scrubbing) return;
+    if(e.pointerType==='mouse' && e.button!==0) return;
+    scrubLastX=null;
+    scrubbing=true; scrubId=e.pointerId; scrubHandle.classList.add('live'); stopPlay(); scrubTo(e.clientX);
+    try{ scrub.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  scrub.addEventListener('pointermove', e=>{ if(scrubbing && e.pointerId===scrubId) scrubTo(e.clientX); });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>scrub.addEventListener(ev,e=>{ if(e.pointerId!==scrubId) return; scrubbing=false; scrubLastX=null; clearTimeout(scrubSettle); scrubHandle.style.scale=''; scrubHandle.classList.remove('live'); }));
+  window.addEventListener('resize', applyOffset);      // handle position is in px — re-derive it after rotate/resize
+
+  /* ---- autoplay ---- */
+  const playIcon='<svg width="18" height="18" viewBox="0 0 18 18"><polygon points="4,2 16,9 4,16" fill="currentColor"/></svg>';
+  const pauseIcon='<svg width="18" height="18" viewBox="0 0 18 18"><rect x="3" y="2" width="4" height="14" rx="1" fill="currentColor"/><rect x="11" y="2" width="4" height="14" rx="1" fill="currentColor"/></svg>';
+  function stopPlay(){ playing=false; playBtn.innerHTML=playIcon; cancelAnimationFrame(rafId); }
+  playBtn.addEventListener('click', ()=>{
+    if(!ready) return;
+    playing=!playing;
+    playBtn.innerHTML = playing ? pauseIcon : playIcon;
+    if(playing){ lastTick=null; rafId=requestAnimationFrame(tick); } else cancelAnimationFrame(rafId);
+  });
+  let lastTick=null;
+  function tick(now){
+    if(!playing) return;
+    if(lastTick==null) lastTick=now;
+    const dt=Math.min(64, now-lastTick); lastTick=now;
+    offset += PERIOD*dt/loopMs;
+    applyOffset();
+    rafId=requestAnimationFrame(tick);
+  }
+
+  /* ---- download + modal ---- */
+  let modalOpen=false, modalClosing=false;
+  dl.addEventListener('click', ()=>{ if(!ready || modalOpen) return; modalOpen=true; modal.classList.add('show'); requestAnimationFrame(()=>modal.classList.add('in')); });
+  function closeModal(then){
+    if(modalClosing) return;                    // a double-tap on "I promise" used to download everything twice
+    modalClosing=true; modal.classList.remove('in');
+    setTimeout(()=>{ modal.classList.remove('show'); modalOpen=false; modalClosing=false; if(then) then(); },300);
+  }
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && modalOpen) closeModal(); });
+  $('promise').addEventListener('click', ()=>closeModal(doDownload));
+  $('notnow').addEventListener('click', ()=>closeModal());
+  veil.addEventListener('click', ()=>closeModal());
+
+  function doDownload(){
+    if(!ready) return;
+    save(composite,'farak.png');
+    setTimeout(()=>{
+      const tmp=document.createElement('canvas'); tmp.width=W; tmp.height=H;
+      tmp.getContext('2d').drawImage(overlay,0,0,W,H,0,0,W,H);
+      save(tmp,'farak-grid.png');
+    },250);
+  }
+  function save(canvas,name){ const a=document.createElement('a'); a.download=name; a.href=canvas.toDataURL('image/png'); a.click(); }
+})();
+</script>
+
+<script>
+/* ---- the header logo: a REAL scanimation composite, built with the exact
+   same math as buildComposite() above (UNIT=2px, N=2 frames), not a CSS
+   trick. The two "photos" are synthesized here instead of uploaded:
+   frame 0 = "FARAK" white, upright. frame 1 = "FARAK" purple, italic.
+   This sits as a plain STATIC base plate — no comb lives on top of it here.
+   The only comb on the whole page is the traveling marquee below, which is
+   sized to exactly match this logo's W×H so it fully covers the text when
+   it passes over. */
+(function(){
+  const compositeC=document.getElementById('logoComposite');
+  const unit=document.getElementById('logoUnit');
+  if(!compositeC||!unit) return;
+
+  const UNIT=2, N=2, PERIOD=UNIT*N;   // identical to the real UNIT/N/PERIOD math
+  const LOOP_MS=3000;                  // identical to MAX_TRIM*1000 for photos
+  const FONT_PX=150;
+  const STRETCH_Y=1.4;                 // vertical-only elongation for the logo art (and, via the marquee's live rect read, the stripe band riding on it). Width/letterforms are untouched.
+  let W,H;
+
+  function measure(italic){
+    const c=document.createElement('canvas').getContext('2d');
+    c.font=(italic?'italic ':'')+'400 '+FONT_PX+'px "Instrument Serif", Georgia, serif';
+    return c.measureText('FARAK').width;
+  }
+
+  function drawFrame(italic,color,hNatural){
+    // draw the letters at their natural (unstretched) height first...
+    const c=document.createElement('canvas'); c.width=W; c.height=hNatural;
+    const ctx=c.getContext('2d');
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.font=(italic?'italic ':'')+'400 '+FONT_PX+'px "Instrument Serif", Georgia, serif';
+    ctx.fillStyle=color;
+    const guessY=hNatural*0.52;
+    ctx.fillText('FARAK',W/2,guessY);
+
+    // different devices may render this with different fonts (the real
+    // webfont vs a fallback if it hasn't loaded), and every font has its
+    // own vertical proportions — a fixed guess can't center all of them.
+    // So: measure where the ink actually landed, and if it's off-center,
+    // redraw once at the corrected position. Self-correcting per device,
+    // not calibrated for just one.
+    const probe=ctx.getImageData(0,0,W,hNatural).data;
+    let minY=hNatural, maxY=-1;
+    for(let y=0;y<hNatural;y++){
+      for(let x=0;x<W;x++){
+        if(probe[(y*W+x)*4+3]>10){ if(y<minY)minY=y; if(y>maxY)maxY=y; break; }
+      }
+    }
+    if(maxY>=minY){
+      const shift=(hNatural/2)-((minY+maxY)/2);
+      if(Math.abs(shift)>0.5){
+        ctx.clearRect(0,0,W,hNatural);
+        ctx.fillText('FARAK',W/2,guessY+shift);
+      }
+    }
+
+    // ...then stretch that vertically onto the final taller canvas. Same W
+    // columns throughout, so the interlacing below (which samples by column)
+    // is completely unaffected — only the vertical extent changes.
+    const tall=document.createElement('canvas'); tall.width=W; tall.height=H;
+    const tctx=tall.getContext('2d');
+    tctx.imageSmoothingEnabled=true; tctx.imageSmoothingQuality='high';
+    tctx.drawImage(c,0,0,W,hNatural,0,0,W,H);
+    return tctx.getImageData(0,0,W,H);
+  }
+
+  function build(){
+    W=Math.ceil(Math.max(measure(false),measure(true))+FONT_PX*0.12);
+    const hNatural=Math.ceil(FONT_PX*1.05);
+    H=Math.ceil(hNatural*STRETCH_Y);
+
+    // frame 0: white, upright. frame 1: purple, italic — two distinct
+    // "photos" fed through the same interlacing logic as buildComposite().
+    const frames=[ drawFrame(false,'#f3f1ec',hNatural), drawFrame(true,'#b48cff',hNatural) ];
+
+    compositeC.width=W; compositeC.height=H;
+    const cctx=compositeC.getContext('2d');
+    const out=cctx.createImageData(W,H), o=out.data;
+    for(let x=0;x<W;x++){
+      const s=frames[Math.floor(x/UNIT)%N].data;
+      for(let y=0;y<H;y++){
+        const di=(y*W+x)*4;
+        o[di]=s[di]; o[di+1]=s[di+1]; o[di+2]=s[di+2]; o[di+3]=s[di+3];
+      }
+    }
+    cctx.putImageData(out,0,0);
+
+    fitLogoToViewport();
+  }
+
+  // the logo is drawn at a fixed pixel size (W×H); on a narrow phone that's
+  // wider than the available space, so it must shrink to fit. A CSS
+  // transform (not a resize/redraw) keeps the same crisp canvas bitmap —
+  // and because the marquee reads unit's LIVE getBoundingClientRect() every
+  // frame, it automatically follows this scaled-down size with no extra code.
+  // The scale is applied to the canvas, while #logoUnit itself is sized to the SCALED
+  // dimensions. Before, the unit kept its full W×H layout box and was only shrunk visually,
+  // which on phones left a dead gap under the logo and a wider-than-screen box (=> sideways scroll).
+  function fitLogoToViewport(){
+    if(!W) return;
+    const available=unit.parentElement.clientWidth;
+    const scale=Math.min(1, available/W);
+    compositeC.style.transform=scale<1 ? `scale(${scale})` : 'none';
+    unit.style.width=(W*scale)+'px';
+    unit.style.height=(H*scale)+'px';
+  }
+  window.addEventListener('resize', fitLogoToViewport);
+
+  // exposed so the marquee (below) can find the logo's live position AND
+  // exact pixel size — it sizes itself to this, not a fixed guess.
+  // `ready` only flips true once build() has actually drawn the real
+  // FARAK texture — before that, unit's rect is just the canvas's
+  // default 300x150 box, not a size worth trusting.
+  window.__farakLogo = { getRect:()=>unit.getBoundingClientRect(), LOOP_MS, ready:false };
+
+  // document.fonts.ready alone can resolve BEFORE the italic face has even been requested (nothing
+  // on the page has used it yet at that moment), so the purple frame was drawn in a fallback italic
+  // on some devices. Explicitly load both faces first.
+  const fontsLoaded = (document.fonts && document.fonts.load)
+    ? Promise.all([
+        document.fonts.load('400 '+FONT_PX+'px "Instrument Serif"', 'FARAK'),
+        document.fonts.load('italic 400 '+FONT_PX+'px "Instrument Serif"', 'FARAK')
+      ]).catch(()=>{}).then(()=>document.fonts.ready).catch(()=>{})
+    : Promise.resolve();
+  fontsLoaded.then(()=>{ build(); window.__farakLogo.ready=true; });
+})();
+</script>
+
+<script>
+/* ---- the traveling comb: a separate decorative strip that races across
+   the full page, one direction only — it vanishes off the right edge and
+   reappears from the left (never bounces back). Normally it moves at
+   FAST_PX_S (160px/s); the instant its path overlaps the real logo above,
+   it slows to OVERLAP_PX_S (14px/s), then speeds back up to 160px/s the
+   moment it clears the logo. Dimensions (width/height) are untouched —
+   only speed changes. */
+(function(){
+  const band=document.getElementById('marquee');
+  if(!band) return;
+
+  const FAST_PX_S=160, OVERLAP_PX_S=14; // speed only: 160px/s normally, 14px/s while over the main logo
+  const FALLBACK_W=220, FALLBACK_H=70; // used only until the logo has built
+  let x=-FALLBACK_W, sized=false, last=null;
+  let dragging=false, dragStartX=0, dragStartBandX=0;
+
+  function tick(now){
+    if(last==null) last=now;
+    const dt=Math.min(0.1,(now-last)/1000); last=now;   // capped: after the tab sat in the background the strip used to leap across the screen
+
+    let speed=FAST_PX_S;
+    const info=window.__farakLogo;
+    let bw=FALLBACK_W, bh=FALLBACK_H;
+
+    if(info && info.ready){
+      const r=info.getRect();
+      if(r.width>0 && r.height>0){
+        bw=r.width; bh=r.height;
+        // The strip's wrap points are the true screen edges (not the logo) —
+        // it slides fully off past the left/right edge, where overflow:hidden
+        // naturally swallows it, then re-enters the same way. No teleport:
+        // the position math is continuous, only visibility is clipped by the
+        // browser at the edge, which is what makes it read as sliding out of
+        // and into the border rather than popping.
+        const leftBound=-bw-40, rightBound=window.innerWidth+40;
+        if(!sized){
+          // dimensions weren't known yet when x was initialized off-screen —
+          // correct it once so the strip starts at the logo, not the old
+          // viewport-based offset.
+          x=leftBound; sized=true;
+          band.style.visibility='visible';
+          // fully opaque, not .9 — a translucent comb let 10% of whatever sat behind it
+          // (the page's own orange/purple background glow) tint its "dark" bars, which
+          // is the stray warm-coloured fringe glitch seen when this strip crosses the logo.
+          requestAnimationFrame(()=>{ band.style.opacity='1'; });
+        }
+        band.style.width=bw+'px';
+        band.style.height=bh+'px';
+        // top is ALWAYS derived from the logo's rect, never from the pointer —
+        // that's what makes vertical dragging structurally impossible: there is
+        // simply no code path that ever writes a pointer Y into band.style.top.
+        band.style.top=(r.top + window.scrollY + r.height/2 - bh/2)+'px';
+
+        const bandRight=x+bw;
+        const overlapping = bandRight>r.left && x<r.right;
+        if(overlapping) speed = OVERLAP_PX_S;
+
+        if(!dragging){
+          x += speed*dt;
+          if(x>rightBound) x=leftBound;
+        }
+      }
+    }
+
+    band.style.left=x+'px';
+    requestAnimationFrame(tick);
+  }
+  band.style.visibility='hidden'; // stays hidden until the logo is measured and bounds are real
+  requestAnimationFrame(tick);
+
+  /* ---- manual drag: grab the strip and pull it forward or back along its
+     own line, same as reaching in and sliding a physical strip of paper.
+     Only clientX is ever read, so drift up/down does nothing — the strip
+     can't leave its horizontal line. On release, dragging just flips back
+     to false and the tick loop above resumes adding speed*dt from wherever
+     the strip was left, so it picks back up at the same speed it had
+     before — no ramp, no reset to the start. */
+  band.addEventListener('pointerdown', e=>{
+    dragging=true;
+    dragStartX=e.clientX;
+    dragStartBandX=x;
+    band.classList.add('dragging');
+    band.setPointerCapture(e.pointerId);
+  });
+  band.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    x = dragStartBandX + (e.clientX - dragStartX);
+  });
+  function release(){
+    if(!dragging) return;
+    dragging=false;
+    last=null; // drop the stale timestamp so the next frame's dt isn't a spike
+    band.classList.remove('dragging');
+  }
+  band.addEventListener('pointerup', release);
+  band.addEventListener('pointercancel', release);
+})();
+</script>
+</body>
+</html>

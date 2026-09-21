@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://fatinanjum16.github.io/FARAK/sitemap.xml
