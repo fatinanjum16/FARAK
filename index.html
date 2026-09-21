@@ -1572,12 +1572,16 @@
       {bytes:opaqueJpegBytes(composite), width:W, height:H},
       {bytes:opaqueJpegBytes(overlay), width:W, height:H}
     ]);
-    // Simplest possible delivery: open the PDF in a new tab and let the browser's
-    // own built-in PDF viewer show it (same on iOS Safari, Chrome, desktop —
-    // no download attribute, no Share Sheet, no base64 tricks to fight with).
-    // From that viewer the person can save/print/share using its native controls.
+    // blob URL (confirmed working) + SAME tab (a NEW tab loses access to the blob
+    // on iOS Safari) via a real anchor click with no target (plain navigation —
+    // avoids Chrome's separate block on script-navigating the top frame to a
+    // data: URI). The browser's native PDF viewer renders it either way.
     const blob=new Blob([pdfBytes],{type:'application/pdf'});
-    window.open(URL.createObjectURL(blob),'_blank');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   // canvas -> raw JPEG bytes, so it can be embedded straight into the PDF (no external libs)
