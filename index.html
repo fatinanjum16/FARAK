@@ -1579,14 +1579,66 @@
 
   function doDownload(){
     if(!ready) return;
-    save(composite,'farak.png');
-    setTimeout(()=>{
-      const tmp=document.createElement('canvas'); tmp.width=W; tmp.height=H;
-      tmp.getContext('2d').drawImage(overlay,0,0,W,H,0,0,W,H);
-      save(tmp,'farak-grid.png');
-    },250);
+    const tmp=document.createElement('canvas'); tmp.width=W; tmp.height=H;
+    tmp.getContext('2d').drawImage(overlay,0,0,W,H,0,0,W,H);
+    const pdfBytes=buildPdfFromJpegs([
+      {bytes:jpegBytes(composite), width:W, height:H},
+      {bytes:jpegBytes(tmp), width:W, height:H}
+    ]);
+    const blob=new Blob([pdfBytes],{type:'application/pdf'});
+    const a=document.createElement('a'); a.download='farak.pdf'; a.href=URL.createObjectURL(blob); a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),4000);
   }
-  function save(canvas,name){ const a=document.createElement('a'); a.download=name; a.href=canvas.toDataURL('image/png'); a.click(); }
+
+  // canvas -> raw JPEG bytes, so it can be embedded straight into the PDF (no external libs)
+  function jpegBytes(canvas){
+    const b64=canvas.toDataURL('image/jpeg',0.92).split(',')[1];
+    const bin=atob(b64);
+    const arr=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    return arr;
+  }
+
+  // minimal hand-built single/multi-page PDF: one full-bleed JPEG per page. No dependencies.
+  function buildPdfFromJpegs(pages){
+    const enc=new TextEncoder();
+    const chunks=[]; let offset=0; const offsets=[];
+    function push(buf){ const b=(buf instanceof Uint8Array)?buf:enc.encode(buf); chunks.push(b); offset+=b.length; }
+    function startObj(num){ offsets[num]=offset; push(num+' 0 obj\n'); }
+
+    push('%PDF-1.4\n');
+    push(new Uint8Array([0x25,0xE2,0xE3,0xCF,0xD3,0x0A])); // binary marker comment
+
+    const n=pages.length, catalogObj=1, pagesObj=2, first=3;
+    startObj(catalogObj); push('<< /Type /Catalog /Pages '+pagesObj+' 0 R >>\nendobj\n');
+
+    const kids=[]; for(let i=0;i<n;i++) kids.push((first+i*3)+' 0 R');
+    startObj(pagesObj); push('<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+n+' >>\nendobj\n');
+
+    for(let i=0;i<n;i++){
+      const pageObj=first+i*3, contentObj=pageObj+1, imageObj=pageObj+2;
+      const {bytes,width,height}=pages[i];
+      const content='q '+width+' 0 0 '+height+' 0 0 cm /Im0 Do Q';
+      startObj(pageObj);
+      push('<< /Type /Page /Parent '+pagesObj+' 0 R /MediaBox [0 0 '+width+' '+height+'] /Resources << /XObject << /Im0 '+imageObj+' 0 R >> /ProcSet [/PDF /ImageC] >> /Contents '+contentObj+' 0 R >>\nendobj\n');
+      startObj(contentObj);
+      push('<< /Length '+content.length+' >>\nstream\n'+content+'\nendstream\nendobj\n');
+      startObj(imageObj);
+      push('<< /Type /XObject /Subtype /Image /Width '+width+' /Height '+height+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+bytes.length+' >>\nstream\n');
+      push(bytes);
+      push('\nendstream\nendobj\n');
+    }
+
+    const totalObjs=first+n*3, xrefStart=offset;
+    push('xref\n0 '+totalObjs+'\n');
+    push('0000000000 65535 f \n');
+    for(let i=1;i<totalObjs;i++) push(String(offsets[i]).padStart(10,'0')+' 00000 n \n');
+    push('trailer\n<< /Size '+totalObjs+' /Root '+catalogObj+' 0 R >>\nstartxref\n'+xrefStart+'\n%%EOF');
+
+    let total=0; for(const c of chunks) total+=c.length;
+    const out=new Uint8Array(total); let p=0; for(const c of chunks){ out.set(c,p); p+=c.length; }
+    return out;
+  }
 })();
 </script>
 
