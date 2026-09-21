@@ -1550,7 +1550,10 @@
     setTimeout(()=>{ modal.classList.remove('show'); modalOpen=false; modalClosing=false; if(then) then(); },300);
   }
   document.addEventListener('keydown', e=>{ if(e.key==='Escape' && modalOpen) closeModal(); });
-  $('promise').addEventListener('click', ()=>closeModal(doDownload));
+  // doDownload must run synchronously inside the click handler — navigator.share()
+  // requires a live user-activation, which a setTimeout-deferred call (closeModal's
+  // old pattern) loses, silently falling back to the broken plain-anchor download.
+  $('promise').addEventListener('click', ()=>{ doDownload(); closeModal(); });
   $('notnow').addEventListener('click', ()=>closeModal());
   veil.addEventListener('click', ()=>closeModal());
 
