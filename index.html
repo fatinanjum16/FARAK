@@ -1577,21 +1577,21 @@
   }
 
   // iOS Safari drops the filename/extension on plain <a download> blob links (shows
-  // up as a random-UUID "?" file). navigator.share keeps the real name + type via
-  // the native share sheet ("Save to Files"). Desktop / unsupported browsers fall
-  // back to the classic anchor download.
+  // up as a random-UUID "?" file), and some mobile browsers ignore the download
+  // attribute entirely and just navigate the current tab to the blob URL, which
+  // shows nothing useful. navigator.share (native share sheet, "Save to Files")
+  // is tried first since it keeps the real name + type. If share isn't available
+  // here, open the PDF in a new tab so the browser's own viewer displays it —
+  // from there the person can use its Save/Share control.
   async function deliverPdf(blob){
     const file=new File([blob],'farak.pdf',{type:'application/pdf'});
     if(navigator.canShare && navigator.canShare({files:[file]})){
       try{ await navigator.share({files:[file], title:'FARAK'}); return; }
-      catch(e){ /* user cancelled the sheet, or share failed — fall through to direct download */ }
+      catch(e){ return; }           // person cancelled the share sheet — respect that, don't also pop a new tab
     }
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.download='farak.pdf'; a.href=url; a.style.display='none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },60000); // give mobile browsers plenty of time to finish saving before the blob is freed
+    window.open(url,'_blank');
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
   }
 
   // canvas -> raw JPEG bytes, so it can be embedded straight into the PDF (no external libs)
