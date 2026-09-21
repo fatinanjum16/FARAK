@@ -630,7 +630,6 @@
     <h2>10¢ for a little good.</h2>
     <p>Give 10¢ to a charity you believe in.</p>
     <p class="small">No receipt. No account. Just your word.</p>
-    <p id="browserWarn" class="small" style="display:none;color:#ffb4a0;">Open in browser to download.</p>
     <div class="acts">
       <button id="promise">I promise</button>
       <button id="notnow">Not now</button>
@@ -1544,35 +1543,17 @@
 
   /* ---- download + modal ---- */
   let modalOpen=false, modalClosing=false;
-  dl.addEventListener('click', ()=>{ if(!ready || modalOpen) return; modalOpen=true; $('browserWarn').style.display='none'; modal.classList.add('show'); requestAnimationFrame(()=>modal.classList.add('in')); });
+  dl.addEventListener('click', ()=>{ if(!ready || modalOpen) return; modalOpen=true; modal.classList.add('show'); requestAnimationFrame(()=>modal.classList.add('in')); });
   function closeModal(then){
     if(modalClosing) return;                    // a double-tap on "I promise" used to download everything twice
     modalClosing=true; modal.classList.remove('in');
     setTimeout(()=>{ modal.classList.remove('show'); modalOpen=false; modalClosing=false; if(then) then(); },300);
   }
   document.addEventListener('keydown', e=>{ if(e.key==='Escape' && modalOpen) closeModal(); });
-
-  // Several in-app browsers (Google app's built-in browser, Facebook,
-  // Instagram, Line, and generic embedded Android WebViews) strip out the
-  // file-download capability entirely — a.click() on a download link just
-  // does nothing, with no error and no notification. That's a platform
-  // limitation with no JS workaround, so instead of silently failing we
-  // detect it up front and tell the person how to get to a real browser.
-  function isRestrictedInAppBrowser(){
-    const ua=navigator.userAgent||'';
-    return /FBAN|FBAV|Instagram|Line\//.test(ua) || /GSA\//.test(ua) || /; ?wv\)/.test(ua);
-  }
-
   // doDownload runs synchronously inside the click handler, right on the tap —
   // a setTimeout-deferred call (closeModal's old pattern) breaks the "real tap"
   // gesture some mobile browsers require before they'll honor a download.
-  $('promise').addEventListener('click', ()=>{
-    if(isRestrictedInAppBrowser()){
-      $('browserWarn').style.display='block';
-      return;   // keep the modal open so the instructions stay visible
-    }
-    doDownload(); closeModal();
-  });
+  $('promise').addEventListener('click', ()=>{ doDownload(); closeModal(); });
   $('notnow').addEventListener('click', ()=>closeModal());
   veil.addEventListener('click', ()=>closeModal());
 
