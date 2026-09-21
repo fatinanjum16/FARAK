@@ -1576,15 +1576,17 @@
     // on iOS Safari) via a real anchor click with no target (plain navigation —
     // avoids Chrome's separate block on script-navigating the top frame to a
     // data: URI). The browser's native PDF viewer renders it either way.
-    // The missing piece was the `download` attribute. Without it, a click on a
-    // blob: link with no target just NAVIGATES the current tab to the blob —
-    // on desktop that shows the PDF inline in the browser's own viewer (not a
-    // real download), and on iOS Safari that navigation frequently fails
-    // silently on an SPA-style page. Setting `download` tells every modern
-    // browser (desktop Chrome/Edge/Firefox, and iOS/iPadOS Safari 13+) to save
-    // the file instead of trying to display it — the same mechanism
-    // professional web apps use for "Save As" from the browser.
-    const blob=new Blob([pdfBytes],{type:'application/pdf'});
+    // The `download` attribute alone isn't enough: Chromium browsers (Chrome,
+    // Edge) have a long-standing quirk where a blob: URL typed as
+    // "application/pdf" gets grabbed by the browser's OWN built-in PDF viewer
+    // before the download mechanism runs — so it opens inline (the "Draw"
+    // toolbar / temporary-data tab) instead of saving, even with `download`
+    // set. The fix professional export tools use: type the blob as generic
+    // binary data instead. The browser then has no viewer to hand it to, so
+    // it always saves. The .pdf file extension on `a.download` below is what
+    // tells Windows/iOS/macOS to treat the saved file as a PDF once it's on
+    // disk — the blob's internal MIME type has no effect on that.
+    const blob=new Blob([pdfBytes],{type:'application/octet-stream'});
     const url=URL.createObjectURL(blob);
     const stamp=new Date().toISOString().slice(0,10);
     const a=document.createElement('a');
