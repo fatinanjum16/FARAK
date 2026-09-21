@@ -1576,12 +1576,31 @@
     // on iOS Safari) via a real anchor click with no target (plain navigation —
     // avoids Chrome's separate block on script-navigating the top frame to a
     // data: URI). The browser's native PDF viewer renders it either way.
+    // The missing piece was the `download` attribute. Without it, a click on a
+    // blob: link with no target just NAVIGATES the current tab to the blob —
+    // on desktop that shows the PDF inline in the browser's own viewer (not a
+    // real download), and on iOS Safari that navigation frequently fails
+    // silently on an SPA-style page. Setting `download` tells every modern
+    // browser (desktop Chrome/Edge/Firefox, and iOS/iPadOS Safari 13+) to save
+    // the file instead of trying to display it — the same mechanism
+    // professional web apps use for "Save As" from the browser.
     const blob=new Blob([pdfBytes],{type:'application/pdf'});
+    const url=URL.createObjectURL(blob);
+    const stamp=new Date().toISOString().slice(0,10);
     const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
+    a.href=url;
+    a.download='FARAK-scanimation-'+stamp+'.pdf';
+    a.rel='noopener';
+    a.style.display='none';
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+    // Revoke on a delay rather than immediately — some browsers (notably
+    // Safari) haven't fully handed the blob off to the OS by the time click()
+    // returns, so revoking synchronously can produce an empty/zero-byte save.
+    setTimeout(()=>{
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    },4000);
   }
 
   // canvas -> raw JPEG bytes, so it can be embedded straight into the PDF (no external libs)
