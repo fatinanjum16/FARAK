@@ -1570,6 +1570,19 @@
       {bytes:opaqueJpegBytes(overlay), width:W, height:H}
     ]);
     const blob=new Blob([pdfBytes],{type:'application/pdf'});
+    deliverPdf(blob);
+  }
+
+  // iOS Safari drops the filename/extension on plain <a download> blob links (shows
+  // up as a random-UUID "?" file). navigator.share keeps the real name + type via
+  // the native share sheet ("Save to Files"). Desktop / unsupported browsers fall
+  // back to the classic anchor download.
+  async function deliverPdf(blob){
+    const file=new File([blob],'farak.pdf',{type:'application/pdf'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file], title:'FARAK'}); return; }
+      catch(e){ /* user cancelled the sheet, or share failed — fall through to direct download */ }
+    }
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
     a.download='farak.pdf'; a.href=url; a.style.display='none';
