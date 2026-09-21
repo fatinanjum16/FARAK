@@ -1572,21 +1572,24 @@
       {bytes:opaqueJpegBytes(composite), width:W, height:H},
       {bytes:opaqueJpegBytes(overlay), width:W, height:H}
     ]);
-    const blob=new Blob([pdfBytes],{type:'application/pdf'});
-    deliverPdf(blob);
-  }
-
-  // Plain anchor download. Earlier this produced a random-UUID "?" file with no
-  // extension on iOS — that was because the call used to fire 300ms late (inside
-  // closeModal's setTimeout), which breaks the "real tap" gesture iOS checks for.
-  // Now that doDownload() runs synchronously on the tap, this works normally.
-  function deliverPdf(blob){
-    const url=URL.createObjectURL(blob);
+    // Plain data: URI download — no Blob, no object-URL, no Share Sheet, no
+    // revoke-timing race. This is the most broadly compatible way to trigger a
+    // named-file download on mobile Safari.
     const a=document.createElement('a');
-    a.download='farak.pdf'; a.href=url; a.style.display='none';
+    a.download='farak.pdf';
+    a.href='data:application/pdf;base64,'+uint8ToBase64(pdfBytes);
     document.body.appendChild(a);
     a.click();
-    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },60000);
+    document.body.removeChild(a);
+  }
+
+  function uint8ToBase64(bytes){
+    let binary='';
+    const chunk=0x8000; // avoid call-stack limits on String.fromCharCode.apply for big arrays
+    for(let i=0;i<bytes.length;i+=chunk){
+      binary+=String.fromCharCode.apply(null, bytes.subarray(i, i+chunk));
+    }
+    return btoa(binary);
   }
 
   // canvas -> raw JPEG bytes, so it can be embedded straight into the PDF (no external libs)
